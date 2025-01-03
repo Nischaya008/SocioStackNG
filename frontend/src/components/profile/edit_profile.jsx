@@ -99,7 +99,7 @@ const EditProfile = ({ user, onClose, onSave }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/user/update', formData);
+      const response = await axios.post('/user/update', formData);
       toast.success('Profile updated successfully');
       onSave();
     } catch (error) {
