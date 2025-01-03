@@ -118,7 +118,7 @@ const MainCards = () => {
       return;
     }
     try {
-      const response = await axios.post(`http://localhost:5000/api/post/like/${postId}`);
+      const response = await axios.post(`/api/post/like/${postId}`);
       
       // Update the posts state without reloading
       setPosts(currentPosts => 
@@ -160,7 +160,7 @@ const MainCards = () => {
       return;
     }
     try {
-      await axios.post(`http://localhost:5000/api/post/comment/${postId}`, { text: commentText });
+      await axios.post(`/api/post/comment/${postId}`, { text: commentText });
       setCommentText('');
       fetchPosts();
       toast.success('Comment added successfully');
@@ -172,7 +172,7 @@ const MainCards = () => {
   const handleDelete = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/post/${postId}`);
+        await axios.delete(`/api/post/${postId}`);
         fetchPosts();
         toast.success('Post deleted successfully');
       } catch (error) {
@@ -200,7 +200,7 @@ const MainCards = () => {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/user/follow/${userId}`);
+      await axios.post(`/api/user/follow/${userId}`);
       
       setFollowingUsers(prev => {
         const newSet = new Set(prev);
