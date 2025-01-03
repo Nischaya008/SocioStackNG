@@ -29,7 +29,7 @@ const SuggestedCard = () => {
   useEffect(() => {
     const fetchSuggestedUsers = async () => {
       try {
-        const response = await axios.get('/api/user/suggested');
+        const response = await axios.get('/user/suggested');
         setSuggestedUsers(response.data);
       } catch (error) {
         console.error('Error fetching suggested users:', error);
@@ -45,7 +45,7 @@ const SuggestedCard = () => {
 
   const handleFollowToggle = async (userId, username) => {
     try {
-      await axios.post(`/api/user/follow/${userId}`);
+      await axios.post(`/user/follow/${userId}`);
       
       setFollowingUsers(prev => {
         const newSet = new Set(prev);
