@@ -118,7 +118,7 @@ const MainCards = () => {
       return;
     }
     try {
-      const response = await axios.post(`/post/like/${postId}`);
+      const response = await axios.post(`/api/post/like/${postId}`);
       
       // Update the posts state without reloading
       setPosts(currentPosts => 
@@ -160,7 +160,7 @@ const MainCards = () => {
       return;
     }
     try {
-      await axios.post(`/post/comment/${postId}`, { text: commentText });
+      await axios.post(`/api/post/comment/${postId}`, { text: commentText });
       setCommentText('');
       fetchPosts();
       toast.success('Comment added successfully');
@@ -172,7 +172,7 @@ const MainCards = () => {
   const handleDelete = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await axios.delete(`/post/${postId}`);
+        await axios.delete(`/api/post/${postId}`);
         fetchPosts();
         toast.success('Post deleted successfully');
       } catch (error) {
@@ -200,7 +200,7 @@ const MainCards = () => {
     }
 
     try {
-      await axios.post(`/user/follow/${userId}`);
+      await axios.post(`/api/user/follow/${userId}`);
       
       setFollowingUsers(prev => {
         const newSet = new Set(prev);
@@ -382,349 +382,353 @@ const MainCards = () => {
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {posts.map((post) => (
-                <Card 
-                  key={post._id} 
-                  sx={{ 
-                    borderRadius: 2,
-                    bgcolor: 'var(--primary-color)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-                    },
-                  }}
-                >
-                  <CardHeader
-                    avatar={
-                      <Avatar
-                        src={post.user.profileIMG}
-                        alt={post.user.username}
-                        sx={{ 
-                          width: 45,
-                          height: 45,
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s ease',
-                          '&:hover': {
-                            transform: 'scale(1.1)',
-                          },
-                        }}
-                        onClick={() => navigate(`/profile/${post.user.username}`)}
-                      />
-                    }
-                    action={
-                      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                        {user?._id === post.user._id && (
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <IconButton 
-                              component={Link} 
-                              to={`/edit-post/${post._id}`}
-                              sx={{ 
-                                '&:hover': { 
-                                  color: 'var(--accent-color)',
-                                  transform: 'scale(1.1)',
-                                },
-                                transition: 'all 0.2s ease',
-                              }}
-                            >
-                              <Edit />
-                            </IconButton>
-                            <IconButton 
-                              onClick={() => handleDelete(post._id)} 
-                              sx={{ 
-                                '&:hover': { 
-                                  color: 'error.main',
-                                  transform: 'scale(1.1)',
-                                },
-                                transition: 'all 0.2s ease',
-                              }}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </Box>
-                        )}
-                      </Box>
-                    }
-                    title={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between' }}>
-                        <Typography
-                          variant="subtitle1"
-                          component={Link}
-                          to={`/profile/${post.user.username}`}
-                          sx={{ 
-                            color: 'text.primary', 
-                            textDecoration: 'none',
-                            fontWeight: 600,
-                            '&:hover': { 
-                              color: 'var(--accent-color)',
-                              textDecoration: 'underline',
-                            },
-                            transition: 'color 0.2s ease',
-                            display: 'inline-block',
-                          }}
-                        >
-                          {post.user.username}
-                        </Typography>
-                        {user && user._id !== post.user._id && (
-                          <Button
-                            variant={followingUsers.has(post.user._id) ? "outlined" : "contained"}
-                            onClick={() => handleFollowToggle(post.user._id, post.user.username)}
-                            startIcon={followingUsers.has(post.user._id) ? null : <PersonAdd />}
-                            size="small"
-                            sx={{
-                              borderRadius: 2,
-                              px: 2,
-                              py: 0.5,
-                              textTransform: 'none',
-                              fontWeight: 600,
-                              bgcolor: followingUsers.has(post.user._id) ? 'transparent' : 'var(--accent-color)',
-                              borderColor: followingUsers.has(post.user._id) ? 'var(--accent-color)' : 'transparent',
-                              color: followingUsers.has(post.user._id) ? 'var(--accent-color)' : 'white',
-                              '&:hover': { 
-                                transform: 'scale(1.02)',
-                                bgcolor: 'var(--secondary-color)',
-                                color: 'white',
-                              },
-                              transition: 'all 0.2s ease-in-out',
-                            }}
-                          >
-                            {followingUsers.has(post.user._id) ? 'Unfollow' : 'Follow'}
-                          </Button>
-                        )}
-                      </Box>
-                    }
-                    subheader={
-                      <Typography 
-                        variant="caption" 
-                        color="text.secondary"
-                        sx={{ 
-                          fontStyle: 'italic',
-                          mt: 0.5,
-                          display: 'block'
-                        }}
-                      >
-                        {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-                      </Typography>
-                    }
-                  />
-
-                  <CardContent sx={{ pb: 1 }}>
-                    <Typography 
-                      variant="h6" 
-                      gutterBottom
-                      sx={{ 
-                        fontWeight: 600,
-                        color: 'text.primary',
-                        mb: 2,
-                      }}
-                    >
-                      {post.title}
-                    </Typography>
-                  </CardContent>
-
-                  {post.image && (
-                    <Box 
-                      sx={{ 
-                        position: 'relative',
-                        width: '100%',
-                        pt: '40%',
-                        maxHeight: '400px',
-                        overflow: 'hidden',
-                        backgroundColor: 'grey.50',
-                      }}
-                    >
-                      <CardMedia
-                        component="img"
-                        image={post.image}
-                        alt={post.title}
-                        sx={{ 
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'contain',
-                          backgroundColor: 'transparent',
-                          transition: 'transform 0.3s ease',
-                          '&:hover': {
-                            transform: 'scale(1.02)',
-                          },
-                          maxHeight: '400px',
-                          margin: 'auto',
-                        }}
-                      />
-                    </Box>
-                  )}
-
-                  <CardContent>
-                    <Typography 
-                      variant="body1" 
-                      color="text.secondary"
-                      sx={{ 
-                        lineHeight: 1.6,
-                        letterSpacing: '0.015em',
-                        fontWeight: 500,
-                      }}
-                    >
-                      {post.description}
-                    </Typography>
-                  </CardContent>
-
-                  <Divider sx={{ mx: 2 }} />
-
-                  <CardActions 
-                    disableSpacing
+              {posts.map((post) => {
+                if (!post || !post.user) return null;
+                
+                return (
+                  <Card 
+                    key={post._id} 
                     sx={{ 
-                      px: 2,
-                      py: 1,
+                      borderRadius: 2,
+                      bgcolor: 'var(--primary-color)',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                      },
                     }}
                   >
-                    <IconButton 
-                      onClick={() => handleLike(post._id)}
-                      sx={{
-                        color: likedPosts.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
-                        '&:hover': {
-                          color: likedPosts.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
-                        },
-                        transition: 'all 0.2s ease',
-                      }}
-                    >
-                      <Favorite />
-                    </IconButton>
-                    <Typography variant="body2" color="text.secondary">
-                      {post.likes.length}
-                    </Typography>
-
-                    <IconButton 
-                      onClick={() => toggleComments(post._id)}
-                      sx={{ 
-                        transition: 'transform 0.2s ease',
-                        '&:hover': { transform: 'scale(1.1)' },
-                        color: expandedComments.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
-                        '&:hover': {
-                          color: expandedComments.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
-                        },
-                      }}
-                    >
-                      <Comment color="inherit" />
-                    </IconButton>
-                    <Typography variant="body2">
-                      {post.comments.length}
-                    </Typography>
-                  </CardActions>
-
-                  <Collapse in={expandedComments.has(post._id)} timeout="auto" unmountOnExit>
-                    <Box 
-                      sx={{ 
-                        p: 2,
-                        bgcolor: 'var(--primary-color)',
-                        borderTop: '1px solid',
-                        borderColor: 'divider',
-                      }}
-                    >
-                      {user ? (
-                        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="Add a comment..."
-                            variant="outlined"
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                backgroundColor: 'background.paper',
-                              },
-                            }}
-                          />
-                          <Button 
-                            variant="contained"
-                            onClick={() => handleComment(post._id)}
-                            disabled={!commentText.trim()}
-                            sx={{
-                              borderRadius: 2,
-                              textTransform: 'none',
-                              px: 3,
-                              bgcolor: 'var(--accent-color)',
-                              '&:hover': {
-                                bgcolor: 'var(--secondary-color)',
-                                transform: 'scale(1.02)',
-                              },
-                              transition: 'transform 0.2s ease',
-                            }}
-                          >
-                            Post
-                          </Button>
-                        </Box>
-                      ) : (
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ textAlign: 'center', py: 2 }}
-                        >
-                          Please log in to comment on posts
-                        </Typography>
-                      )}
-                      
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {post.comments.slice(0, 3).map((comment, index) => (
-                          <Box 
-                            key={index} 
-                            sx={{ 
-                              display: 'flex', 
-                              gap: 1.5,
-                              p: 1,
-                              borderRadius: 1,
-                              '&:hover': {
-                                bgcolor: 'background.paper',
-                              },
-                              transition: 'background-color 0.2s ease',
-                            }}
-                          >
-                            <Avatar
-                              src={comment.user.profileIMG}
-                              alt={comment.user.username}
-                              sx={{ 
-                                width: 32, 
-                                height: 32,
-                                border: '2px solid',
-                                borderColor: 'primary.light',
-                              }}
-                            />
-                            <Box>
-                              <Typography
-                                component={Link}
-                                to={`/profile/${comment.user.username}`}
-                                variant="subtitle2"
+                    <CardHeader
+                      avatar={
+                        <Avatar
+                          src={post.user?.profileIMG}
+                          alt={post.user?.username || 'User'}
+                          sx={{ 
+                            width: 45,
+                            height: 45,
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s ease',
+                            '&:hover': {
+                              transform: 'scale(1.1)',
+                            },
+                          }}
+                          onClick={() => post.user?.username && navigate(`/profile/${post.user.username}`)}
+                        />
+                      }
+                      action={
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          {user?._id === post.user._id && (
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <IconButton 
+                                component={Link} 
+                                to={`/edit-post/${post._id}`}
                                 sx={{ 
-                                  color: 'text.primary',
-                                  textDecoration: 'none',
-                                  fontWeight: 600,
                                   '&:hover': { 
                                     color: 'var(--accent-color)',
-                                    textDecoration: 'underline',
+                                    transform: 'scale(1.1)',
                                   },
+                                  transition: 'all 0.2s ease',
                                 }}
                               >
-                                {comment.user.username}
-                              </Typography>
-                              <Typography 
-                                variant="body2" 
-                                color="text.secondary"
-                                sx={{ mt: 0.5 }}
+                                <Edit />
+                              </IconButton>
+                              <IconButton 
+                                onClick={() => handleDelete(post._id)} 
+                                sx={{ 
+                                  '&:hover': { 
+                                    color: 'error.main',
+                                    transform: 'scale(1.1)',
+                                  },
+                                  transition: 'all 0.2s ease',
+                                }}
                               >
-                                {comment.text}
-                              </Typography>
+                                <Delete />
+                              </IconButton>
                             </Box>
-                          </Box>
-                        ))}
+                          )}
+                        </Box>
+                      }
+                      title={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'space-between' }}>
+                          <Typography
+                            variant="subtitle1"
+                            component={Link}
+                            to={`/profile/${post.user.username}`}
+                            sx={{ 
+                              color: 'text.primary', 
+                              textDecoration: 'none',
+                              fontWeight: 600,
+                              '&:hover': { 
+                                color: 'var(--accent-color)',
+                                textDecoration: 'underline',
+                              },
+                              transition: 'color 0.2s ease',
+                              display: 'inline-block',
+                            }}
+                          >
+                            {post.user.username}
+                          </Typography>
+                          {user && user._id !== post.user._id && (
+                            <Button
+                              variant={followingUsers.has(post.user._id) ? "outlined" : "contained"}
+                              onClick={() => handleFollowToggle(post.user._id, post.user.username)}
+                              startIcon={followingUsers.has(post.user._id) ? null : <PersonAdd />}
+                              size="small"
+                              sx={{
+                                borderRadius: 2,
+                                px: 2,
+                                py: 0.5,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                bgcolor: followingUsers.has(post.user._id) ? 'transparent' : 'var(--accent-color)',
+                                borderColor: followingUsers.has(post.user._id) ? 'var(--accent-color)' : 'transparent',
+                                color: followingUsers.has(post.user._id) ? 'var(--accent-color)' : 'white',
+                                '&:hover': { 
+                                  transform: 'scale(1.02)',
+                                  bgcolor: 'var(--secondary-color)',
+                                  color: 'white',
+                                },
+                                transition: 'all 0.2s ease-in-out',
+                              }}
+                            >
+                              {followingUsers.has(post.user._id) ? 'Unfollow' : 'Follow'}
+                            </Button>
+                          )}
+                        </Box>
+                      }
+                      subheader={
+                        <Typography 
+                          variant="caption" 
+                          color="text.secondary"
+                          sx={{ 
+                            fontStyle: 'italic',
+                            mt: 0.5,
+                            display: 'block'
+                          }}
+                        >
+                          {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                        </Typography>
+                      }
+                    />
+
+                    <CardContent sx={{ pb: 1 }}>
+                      <Typography 
+                        variant="h6" 
+                        gutterBottom
+                        sx={{ 
+                          fontWeight: 600,
+                          color: 'text.primary',
+                          mb: 2,
+                        }}
+                      >
+                        {post.title}
+                      </Typography>
+                    </CardContent>
+
+                    {post.image && (
+                      <Box 
+                        sx={{ 
+                          position: 'relative',
+                          width: '100%',
+                          pt: '40%',
+                          maxHeight: '400px',
+                          overflow: 'hidden',
+                          backgroundColor: 'grey.50',
+                        }}
+                      >
+                        <CardMedia
+                          component="img"
+                          image={post.image}
+                          alt={post.title}
+                          sx={{ 
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            backgroundColor: 'transparent',
+                            transition: 'transform 0.3s ease',
+                            '&:hover': {
+                              transform: 'scale(1.02)',
+                            },
+                            maxHeight: '400px',
+                            margin: 'auto',
+                          }}
+                        />
                       </Box>
-                    </Box>
-                  </Collapse>
-                </Card>
-              ))}
+                    )}
+
+                    <CardContent>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary"
+                        sx={{ 
+                          lineHeight: 1.6,
+                          letterSpacing: '0.015em',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {post.description}
+                      </Typography>
+                    </CardContent>
+
+                    <Divider sx={{ mx: 2 }} />
+
+                    <CardActions 
+                      disableSpacing
+                      sx={{ 
+                        px: 2,
+                        py: 1,
+                      }}
+                    >
+                      <IconButton 
+                        onClick={() => handleLike(post._id)}
+                        sx={{
+                          color: likedPosts.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                          '&:hover': {
+                            color: likedPosts.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
+                          },
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <Favorite />
+                      </IconButton>
+                      <Typography variant="body2" color="text.secondary">
+                        {post.likes.length}
+                      </Typography>
+
+                      <IconButton 
+                        onClick={() => toggleComments(post._id)}
+                        sx={{ 
+                          transition: 'transform 0.2s ease',
+                          '&:hover': { transform: 'scale(1.1)' },
+                          color: expandedComments.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                          '&:hover': {
+                            color: expandedComments.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
+                          },
+                        }}
+                      >
+                        <Comment color="inherit" />
+                      </IconButton>
+                      <Typography variant="body2">
+                        {post.comments.length}
+                      </Typography>
+                    </CardActions>
+
+                    <Collapse in={expandedComments.has(post._id)} timeout="auto" unmountOnExit>
+                      <Box 
+                        sx={{ 
+                          p: 2,
+                          bgcolor: 'var(--primary-color)',
+                          borderTop: '1px solid',
+                          borderColor: 'divider',
+                        }}
+                      >
+                        {user ? (
+                          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              value={commentText}
+                              onChange={(e) => setCommentText(e.target.value)}
+                              placeholder="Add a comment..."
+                              variant="outlined"
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  borderRadius: 2,
+                                  backgroundColor: 'background.paper',
+                                },
+                              }}
+                            />
+                            <Button 
+                              variant="contained"
+                              onClick={() => handleComment(post._id)}
+                              disabled={!commentText.trim()}
+                              sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                px: 3,
+                                bgcolor: 'var(--accent-color)',
+                                '&:hover': {
+                                  bgcolor: 'var(--secondary-color)',
+                                  transform: 'scale(1.02)',
+                                },
+                                transition: 'transform 0.2s ease',
+                              }}
+                            >
+                              Post
+                            </Button>
+                          </Box>
+                        ) : (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ textAlign: 'center', py: 2 }}
+                          >
+                            Please log in to comment on posts
+                          </Typography>
+                        )}
+                        
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {post.comments.slice(0, 3).map((comment, index) => (
+                            <Box 
+                              key={index} 
+                              sx={{ 
+                                display: 'flex', 
+                                gap: 1.5,
+                                p: 1,
+                                borderRadius: 1,
+                                '&:hover': {
+                                  bgcolor: 'background.paper',
+                                },
+                                transition: 'background-color 0.2s ease',
+                              }}
+                            >
+                              <Avatar
+                                src={comment.user.profileIMG}
+                                alt={comment.user.username}
+                                sx={{ 
+                                  width: 32, 
+                                  height: 32,
+                                  border: '2px solid',
+                                  borderColor: 'primary.light',
+                                }}
+                              />
+                              <Box>
+                                <Typography
+                                  component={Link}
+                                  to={`/profile/${comment.user.username}`}
+                                  variant="subtitle2"
+                                  sx={{ 
+                                    color: 'text.primary',
+                                    textDecoration: 'none',
+                                    fontWeight: 600,
+                                    '&:hover': { 
+                                      color: 'var(--accent-color)',
+                                      textDecoration: 'underline',
+                                    },
+                                  }}
+                                >
+                                  {comment.user.username}
+                                </Typography>
+                                <Typography 
+                                  variant="body2" 
+                                  color="text.secondary"
+                                  sx={{ mt: 0.5 }}
+                                >
+                                  {comment.text}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    </Collapse>
+                  </Card>
+                );
+              })}
             </Box>
           )}
         </Box>
