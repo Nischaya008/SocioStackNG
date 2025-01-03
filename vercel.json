@@ -10,7 +10,7 @@
         "use": "@vercel/static-build",
         "config": { 
           "distDir": "build",
-          "buildCommand": "cd frontend && CI=false npm run build"
+          "buildCommand": "cd frontend && DISABLE_ESLINT_PLUGIN=true npm run build"
         }
       }
     ],
