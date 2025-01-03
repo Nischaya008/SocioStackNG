@@ -48,19 +48,17 @@ const MainCards = () => {
     try {
       let response;
       if (!user) {
-        response = await axios.get('http://localhost:5000/api/post/all', {
-          headers: { 'Content-Type': 'application/json' }
-        });
+        response = await axios.get('/post/all');
       } else {
         switch (viewMode) {
           case 'liked':
-            response = await axios.get(`http://localhost:5000/api/post/liked/${user._id}`);
+            response = await axios.get(`/post/liked/${user._id}`);
             break;
           case 'followed':
-            response = await axios.get('http://localhost:5000/api/post/following');
+            response = await axios.get('/post/following');
             break;
           default:
-            response = await axios.get('http://localhost:5000/api/post/all');
+            response = await axios.get('/post/all');
         }
       }
       setPosts(response.data);
