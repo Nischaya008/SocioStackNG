@@ -48,26 +48,27 @@ const MainCards = () => {
     try {
       let response;
       if (!user) {
-        response = await axios.get('/api/post/all');
+        response = await axios.get('/post/all');
       } else {
         switch (viewMode) {
           case 'liked':
-            response = await axios.get(`/api/post/liked/${user._id}`);
+            response = await axios.get(`/post/liked/${user._id}`);
             break;
           case 'followed':
-            response = await axios.get('/api/post/following');
+            response = await axios.get('/post/following');
             break;
           default:
-            response = await axios.get('/api/post/all');
+            response = await axios.get('/post/all');
         }
       }
       
-      // Handle empty response data
-      setPosts(response.data || []);
+      // Ensure response.data is an array
+      const postsData = Array.isArray(response.data) ? response.data : [];
+      setPosts(postsData);
 
       if (user) {
         const userLikedPosts = new Set(
-          (response.data || [])
+          postsData
             .filter(post => post.likes.includes(user._id))
             .map(post => post._id)
         );
@@ -78,9 +79,9 @@ const MainCards = () => {
 
       if (user) {
         const userFollowing = new Set(
-          (response.data || [])
+          postsData
             .map(post => post.user)
-            .filter(postUser => postUser.followers?.includes(user._id))
+            .filter(postUser => postUser?.followers?.includes(user._id))
             .map(postUser => postUser._id)
         );
         setFollowingUsers(userFollowing);
@@ -89,7 +90,7 @@ const MainCards = () => {
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
-      setPosts([]);
+      setPosts([]);  // Set empty array on error
       toast.error(error.response?.data?.message || 'Error fetching posts');
     } finally {
       setLoading(false);
@@ -118,7 +119,7 @@ const MainCards = () => {
       return;
     }
     try {
-      const response = await axios.post(`/api/post/like/${postId}`);
+      const response = await axios.post(`/post/like/${postId}`);
       
       // Update the posts state without reloading
       setPosts(currentPosts => 
@@ -160,7 +161,7 @@ const MainCards = () => {
       return;
     }
     try {
-      await axios.post(`/api/post/comment/${postId}`, { text: commentText });
+      await axios.post(`/post/comment/${postId}`, { text: commentText });
       setCommentText('');
       fetchPosts();
       toast.success('Comment added successfully');
@@ -172,7 +173,7 @@ const MainCards = () => {
   const handleDelete = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await axios.delete(`/api/post/${postId}`);
+        await axios.delete(`/post/${postId}`);
         fetchPosts();
         toast.success('Post deleted successfully');
       } catch (error) {
@@ -200,7 +201,7 @@ const MainCards = () => {
     }
 
     try {
-      await axios.post(`/api/user/follow/${userId}`);
+      await axios.post(`/user/follow/${userId}`);
       
       setFollowingUsers(prev => {
         const newSet = new Set(prev);
@@ -365,7 +366,7 @@ const MainCards = () => {
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
               <CircularProgress />
             </Box>
-          ) : posts.length === 0 ? (
+          ) : !Array.isArray(posts) || posts.length === 0 ? (
             <Box 
               display="flex" 
               flexDirection="column" 
