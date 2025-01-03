@@ -2,6 +2,8 @@ import User from "../../models/user.js";
 import Notification from "../../models/notification.js";
 import bcrypt from "bcryptjs";
 import {v2 as cloudinary} from "cloudinary";
+import Post from "../../models/post.js";
+
 export const getUser=async(req,res)=>{
     const{name}=req.params;
     
@@ -164,16 +166,47 @@ export const updateUser=async(req,res)=>{
     }
 };
 
-export const deleteUser=async(req,res)=>{
-    try{
-        const userid=req.user._id;
-        const user=await User.findById(userid);
-        if(!user){
-            return res.status(404).json({message:"User not found"});
+export const deleteUser = async(req,res) => {
+    try {
+        const userid = req.user._id;
+        const user = await User.findById(userid);
+        
+        if(!user) {
+            return res.status(404).json({message: "User not found"});
         }
+
+        // Delete user's posts
+        await Post.deleteMany({ 'user._id': userid });
+        
+        // Remove user from others' followers/following lists
+        await User.updateMany(
+            { $or: [
+                { followers: userid },
+                { following: userid }
+            ]},
+            { 
+                $pull: { 
+                    followers: userid,
+                    following: userid
+                }
+            }
+        );
+
+        // Delete user's comments from posts
+        await Post.updateMany(
+            { 'comments.user._id': userid },
+            { $pull: { comments: { 'user._id': userid } } }
+        );
+
+        // Finally delete the user
         await User.findByIdAndDelete(userid);
-        res.status(200).json({message:"User deleted successfully"});
-    }catch(error){
-        return res.status(500).json({message:"Server error"});
+        
+        // Clear the authentication cookie
+        res.clearCookie('jwt');
+        
+        res.status(200).json({message: "User and associated data deleted successfully"});
+    } catch(error) {
+        console.error('Delete user error:', error);
+        return res.status(500).json({message: "Server error"});
     }
 };
