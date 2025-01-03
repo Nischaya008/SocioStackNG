@@ -48,24 +48,26 @@ const MainCards = () => {
     try {
       let response;
       if (!user) {
-        response = await axios.get('/post/all');
+        response = await axios.get('/api/post/all');
       } else {
         switch (viewMode) {
           case 'liked':
-            response = await axios.get(`/post/liked/${user._id}`);
+            response = await axios.get(`/api/post/liked/${user._id}`);
             break;
           case 'followed':
-            response = await axios.get('/post/following');
+            response = await axios.get('/api/post/following');
             break;
           default:
-            response = await axios.get('/post/all');
+            response = await axios.get('/api/post/all');
         }
       }
-      setPosts(response.data);
+      
+      // Handle empty response data
+      setPosts(response.data || []);
 
       if (user) {
         const userLikedPosts = new Set(
-          response.data
+          (response.data || [])
             .filter(post => post.likes.includes(user._id))
             .map(post => post._id)
         );
@@ -76,7 +78,7 @@ const MainCards = () => {
 
       if (user) {
         const userFollowing = new Set(
-          response.data
+          (response.data || [])
             .map(post => post.user)
             .filter(postUser => postUser.followers?.includes(user._id))
             .map(postUser => postUser._id)
@@ -86,11 +88,9 @@ const MainCards = () => {
         setFollowingUsers(new Set());
       }
     } catch (error) {
-      if (error.response?.status === 404) {
-        setPosts([]);
-      } else {
-        toast.error(error.response?.data?.message || 'Error fetching posts');
-      }
+      console.error('Error fetching posts:', error);
+      setPosts([]);
+      toast.error(error.response?.data?.message || 'Error fetching posts');
     } finally {
       setLoading(false);
     }
