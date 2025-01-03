@@ -139,7 +139,7 @@ const Header = () => {
 
     if (query.length >= 1) {
       try {
-        const response = await axios.get(`/api/user/profile/${query}`);
+        const response = await axios.get(`/user/profile/${query}`);
         setSearchResults(response.data);
         setShowResults(true);
       } catch (error) {
