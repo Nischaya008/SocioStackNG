@@ -62,7 +62,7 @@ const Profile = () => {
     const fetchProfileAndPosts = async () => {
       try {
         // First fetch profile data
-        const profileRes = await axios.get(`/api/user/profile/${username || user?.username}`);
+        const profileRes = await axios.get(`/user/profile/${username || user?.username}`);
         setProfileData(profileRes.data[0]);
         
         if (user && profileRes.data[0]?.followers) {
@@ -71,7 +71,7 @@ const Profile = () => {
 
         // Then fetch posts separately
         try {
-          const postsRes = await axios.get(`/api/post/user/${username || user?.username}`);
+          const postsRes = await axios.get(`/post/user/${username || user?.username}`);
           setPosts(postsRes.data);
           
           if (user) {
@@ -112,7 +112,7 @@ const Profile = () => {
     }
 
     try {
-      await axios.post(`/api/user/follow/${profileData._id}`);
+      await axios.post(`/user/follow/${profileData._id}`);
       setIsFollowing(!isFollowing);
       
       // Update follower count
@@ -136,7 +136,7 @@ const Profile = () => {
     }
 
     try {
-      await axios.post(`/api/post/like/${postId}`);
+      await axios.post(`/post/like/${postId}`);
       setPosts(currentPosts => 
         currentPosts.map(post => {
           if (post._id === postId) {
@@ -178,7 +178,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await axios.post(`/api/post/comment/${postId}`, {
+      const response = await axios.post(`/post/comment/${postId}`, {
         text: commentText
       });
 
@@ -220,7 +220,7 @@ const Profile = () => {
 
   const refreshProfile = async () => {
     try {
-      const profileRes = await axios.get(`/api/user/profile/${username || user?.username}`);
+      const profileRes = await axios.get(`/user/profile/${username || user?.username}`);
       setProfileData(profileRes.data[0]);
     } catch (error) {
       toast.error('Error refreshing profile data');
@@ -234,7 +234,7 @@ const Profile = () => {
     }
 
     try {
-      await axios.delete('/api/user/delete');
+      await axios.delete('/user/delete');
       toast.success('Account deleted successfully');
       // Logout user and redirect to home
       window.location.href = '/';
