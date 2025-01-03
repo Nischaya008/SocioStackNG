@@ -65,7 +65,7 @@ const FloatingCreatePost = () => {
     setLoading(true);
 
     try {
-      await axios.post('/api/post/create', formData);
+      await axios.post('/post/create', formData);
       toast.success('Post created successfully!');
       handleClose();
       // You might want to trigger a refresh of the posts list here
