@@ -32,7 +32,7 @@ const NotificationDialog = ({ open, onClose }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get('/api/notif/');
+      const response = await axios.get('/notif/');
       setNotifications(response.data);
     } catch (error) {
       if (error.response?.status !== 404) {
@@ -53,7 +53,7 @@ const NotificationDialog = ({ open, onClose }) => {
   const handleDeleteAll = async () => {
     if (window.confirm('Are you sure you want to delete all notifications?')) {
       try {
-        await axios.delete('/api/notif/');
+        await axios.delete('/notif/');
         setNotifications([]);
         toast.success('All notifications cleared! 🧹');
       } catch (error) {
@@ -64,7 +64,7 @@ const NotificationDialog = ({ open, onClose }) => {
 
   const handleDeleteOne = async (id) => {
     try {
-      await axios.delete(`/api/notif/${id}`);
+      await axios.delete(`/notif/${id}`);
       setNotifications(prev => prev.filter(notif => notif._id !== id));
       toast.success('Notification removed! 🗑️');
     } catch (error) {
