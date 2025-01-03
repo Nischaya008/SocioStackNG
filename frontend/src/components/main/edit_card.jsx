@@ -71,7 +71,7 @@ const EditCard = () => {
 
   const fetchPost = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/post/all`);
+      const response = await axios.get(`/api/post/all`);
       const post = response.data.find(post => post._id === id);
       if (post) {
         setFormData({
@@ -125,7 +125,7 @@ const EditCard = () => {
         image: formData.image || null
       };
       
-      await axios.post(`http://localhost:5000/api/post/edit/${id}`, dataToSend);
+      await axios.post(`/api/post/edit/${id}`, dataToSend);
       toast.success('Post updated successfully');
       navigate('/');
     } catch (error) {
