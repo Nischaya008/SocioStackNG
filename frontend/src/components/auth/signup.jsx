@@ -78,7 +78,7 @@ const SignUp = ({ open, onClose }) => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+      const response = await axios.post('/api/auth/signup', {
         username: formData.username,
         name: formData.name,
         email: formData.email,
