@@ -24,8 +24,14 @@ cloudinary.config({
 });
 
 app.use(cors({
-    origin: ['https://sociostackng.vercel.app', 'http://localhost:3000'],
-    credentials: true
+    origin: [
+        'https://sociostackng.vercel.app',
+        'https://sociostackng-re0loosmo-nischaya-gargs-projects.vercel.app',
+        'http://localhost:3000'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(cookieParser());
