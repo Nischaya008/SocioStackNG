@@ -42,7 +42,7 @@ const SignIn = ({ open, onClose }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('/api/auth/login', {
         username: formData.usernameOrEmail,
         email: formData.usernameOrEmail,
         password: formData.password,
