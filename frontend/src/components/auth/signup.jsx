@@ -78,7 +78,7 @@ const SignUp = ({ open, onClose }) => {
     }
 
     try {
-      const response = await axios.post('/api/auth/signup', {
+      const response = await axios.post('/auth/signup', {
         username: formData.username,
         name: formData.name,
         email: formData.email,
