@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/auth/me');
+      const response = await axios.get('/auth/me');
       setUser(response.data);
     } catch (error) {
       setUser(null);
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/logout');
+      await axios.post('/auth/logout');
       setUser(null);
       window.location.reload();
     } catch (error) {
