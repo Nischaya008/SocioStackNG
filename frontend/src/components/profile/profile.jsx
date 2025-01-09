@@ -744,57 +744,62 @@ const Profile = () => {
                           )}
                           
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {post.comments.slice(0, 3).map((comment, index) => (
-                              <Box 
-                                key={index} 
-                                sx={{ 
-                                  display: 'flex', 
-                                  gap: 1.5,
-                                  p: 1,
-                                  borderRadius: 1,
-                                  '&:hover': {
-                                    bgcolor: 'background.paper',
-                                  },
-                                  transition: 'background-color 0.2s ease',
-                                }}
-                              >
-                                <Avatar
-                                  src={comment.user.profileIMG}
-                                  alt={comment.user.username}
+                            {post.comments && post.comments.length > 0 && post.comments
+                              .slice(0, 3)
+                              .filter(comment => comment && comment.user) // Only show comments with valid user data
+                              .map((comment, index) => (
+                                <Box 
+                                  key={comment._id || index} 
                                   sx={{ 
-                                    width: 32, 
-                                    height: 32,
-                                    border: '2px solid',
-                                    borderColor: 'primary.light',
+                                    display: 'flex', 
+                                    gap: 1.5,
+                                    p: 1,
+                                    borderRadius: 1,
+                                    '&:hover': {
+                                      bgcolor: 'background.paper',
+                                    },
+                                    transition: 'background-color 0.2s ease',
                                   }}
-                                />
-                                <Box>
-                                  <Typography
-                                    component={Link}
-                                    to={`/profile/${comment.user.username}`}
-                                    variant="subtitle2"
+                                >
+                                  <Avatar
+                                    src={comment.user?.profileIMG}
+                                    alt={comment.user?.username || 'User'}
                                     sx={{ 
-                                      color: 'text.primary',
-                                      textDecoration: 'none',
-                                      fontWeight: 600,
-                                      '&:hover': { 
-                                        color: 'primary.main',
-                                        textDecoration: 'underline',
-                                      },
+                                      width: 32, 
+                                      height: 32,
+                                      border: '2px solid',
+                                      borderColor: 'primary.light',
                                     }}
                                   >
-                                    {comment.user.username}
-                                  </Typography>
-                                  <Typography 
-                                    variant="body2" 
-                                    color="text.secondary"
-                                    sx={{ mt: 0.5 }}
-                                  >
-                                    {comment.text}
-                                  </Typography>
+                                    {comment.user?.username?.[0]?.toUpperCase() || 'U'}
+                                  </Avatar>
+                                  <Box>
+                                    <Typography
+                                      component={Link}
+                                      to={`/profile/${comment.user?.username}`}
+                                      variant="subtitle2"
+                                      sx={{ 
+                                        color: 'text.primary',
+                                        textDecoration: 'none',
+                                        fontWeight: 600,
+                                        '&:hover': { 
+                                          color: 'primary.main',
+                                          textDecoration: 'underline',
+                                        },
+                                      }}
+                                    >
+                                      {comment.user?.username || 'Unknown User'}
+                                    </Typography>
+                                    <Typography 
+                                      variant="body2" 
+                                      color="text.secondary"
+                                      sx={{ mt: 0.5 }}
+                                    >
+                                      {comment.text}
+                                    </Typography>
+                                  </Box>
                                 </Box>
-                              </Box>
-                            ))}
+                              ))}
                           </Box>
                         </Box>
                       </Collapse>
