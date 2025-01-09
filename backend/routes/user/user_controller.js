@@ -8,16 +8,16 @@ export const getUser=async(req,res)=>{
     const{name}=req.params;
     
     try {
-        if (name.length < 3) {
-            return res.status(200).json([]); // Return empty array if less than 3 characters
+        if (name.length < 2) {
+            return res.status(200).json([]); // Return empty array if less than 2 characters
         }
 
-        // Use regex for case-insensitive partial matching
+        // Use regex for case-insensitive partial matching on both username and name
         const users = await User.find({
-            username: { 
-                $regex: name, 
-                $options: 'i' // Case insensitive
-            }
+            $or: [
+                { username: { $regex: name, $options: 'i' } },
+                { name: { $regex: name, $options: 'i' } }
+            ]
         })
         .select("-password")
         .limit(5); // Limit results to 5 users
