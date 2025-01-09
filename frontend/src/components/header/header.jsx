@@ -137,7 +137,7 @@ const Header = () => {
     const query = event.target.value;
     setSearchQuery(query);
 
-    if (query.length >= 1) {
+    if (query.length >= 2) {
       try {
         const response = await axios.get(`/api/user/profile/${query}`);
         setSearchResults(response.data);
@@ -449,5 +449,4 @@ const Header = () => {
     </AppBar>
   );
 };
-
 export default Header;
