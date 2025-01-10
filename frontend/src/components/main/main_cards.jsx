@@ -283,12 +283,16 @@ const MainCards = () => {
                   px: { xs: 2, sm: 3 },
                   py: 1,
                   '&.Mui-selected': {
-                    bgcolor: 'primary.main',
+                    bgcolor: 'var(--accent-color)',
                     color: 'white',
                     '&:hover': {
-                      bgcolor: 'primary.dark',
+                      bgcolor: 'var(--secondary-color)',
                     },
                   },
+                  '&:hover': {
+                    bgcolor: 'rgba(249, 115, 22, 0.04)', // Light version of accent color
+                  },
+                  transition: 'all 0.2s ease-in-out',
                 },
               }}
             >
@@ -422,7 +426,7 @@ const MainCards = () => {
                         {user && user._id !== post.user?._id && (
                           <Button
                             variant={followingUsers.has(post.user?._id) ? "outlined" : "contained"}
-                            color={followingUsers.has(post.user?._id) ? "primary" : "primary"}
+                            color="primary"
                             onClick={() => handleFollowToggle(post.user?._id, post.user?.username)}
                             startIcon={followingUsers.has(post.user?._id) ? null : <PersonAdd />}
                             size="small"
@@ -432,9 +436,13 @@ const MainCards = () => {
                               py: 0.5,
                               textTransform: 'none',
                               fontWeight: 600,
+                              bgcolor: followingUsers.has(post.user?._id) ? 'transparent' : 'var(--accent-color)',
+                              borderColor: followingUsers.has(post.user?._id) ? 'var(--accent-color)' : 'transparent',
+                              color: followingUsers.has(post.user?._id) ? 'var(--accent-color)' : 'white',
                               '&:hover': { 
                                 transform: 'scale(1.02)',
-                                bgcolor: followingUsers.has(post.user?._id) ? 'error.main' : 'primary.dark',
+                                bgcolor: 'var(--secondary-color)',
+                                borderColor: 'var(--secondary-color)',
                                 color: 'white',
                               },
                               transition: 'all 0.2s ease-in-out',
@@ -534,9 +542,9 @@ const MainCards = () => {
                     <IconButton 
                       onClick={() => handleLike(post._id)}
                       sx={{
-                        color: likedPosts.has(post._id) ? 'primary.main' : 'text.secondary',
+                        color: likedPosts.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
                         '&:hover': {
-                          color: likedPosts.has(post._id) ? 'primary.dark' : 'primary.light',
+                          color: likedPosts.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
                         },
                         transition: 'all 0.2s ease',
                       }}
@@ -552,9 +560,13 @@ const MainCards = () => {
                       sx={{ 
                         transition: 'transform 0.2s ease',
                         '&:hover': { transform: 'scale(1.1)' },
+                        color: expandedComments.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                        '&:hover': {
+                          color: expandedComments.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
+                        },
                       }}
                     >
-                      <Comment color={expandedComments.has(post._id) ? "primary" : "inherit"} />
+                      <Comment color="inherit" />
                     </IconButton>
                     <Typography variant="body2">
                       {post.comments.length}
@@ -679,3 +691,4 @@ const MainCards = () => {
 };
 
 export default MainCards;
+
