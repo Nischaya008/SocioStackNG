@@ -17,7 +17,7 @@ import {
   Close as CloseIcon,
   Delete as DeleteIcon,
   Favorite as LikeIcon,
-  PersonAdd as FollowIcon,
+  PersonAdd as PersonAddIcon,
   Article as PostIcon,
   DeleteSweep as DeleteAllIcon
 } from '@mui/icons-material';
@@ -25,15 +25,38 @@ import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 import { alpha } from '@mui/material/styles';
+import { Link } from 'react-router-dom';
+import { debounce } from 'lodash';
 
 const NotificationDialog = ({ open, onClose }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followingUsers, setFollowingUsers] = useState(new Set());
+
+  const debouncedToast = debounce((message) => {
+    toast.success(message);
+  }, 100);
 
   const fetchNotifications = async () => {
     try {
       const response = await axios.get('/api/notif/');
       setNotifications(response.data);
+      
+      // Set following status by checking if current user is in each notification user's followers
+      const following = new Set(
+        response.data
+          .map(notif => notif.from)
+          .filter(user => user?.followers?.includes(user?._id))
+          .map(user => user?._id)
+      );
+      setFollowingUsers(following);
+
+      // Get current user's following list to correctly set initial state
+      const userResponse = await axios.get('/api/user/following');
+      if (userResponse.data) {
+        const followingSet = new Set(userResponse.data.map(user => user._id));
+        setFollowingUsers(followingSet);
+      }
     } catch (error) {
       if (error.response?.status !== 404) {
         toast.error('Failed to fetch notifications');
@@ -77,7 +100,7 @@ const NotificationDialog = ({ open, onClose }) => {
       case 'like':
         return <LikeIcon sx={{ color: '#F97316' }} />;
       case 'follow':
-        return <FollowIcon sx={{ color: '#2D6A4F' }} />;
+        return <PersonAddIcon sx={{ color: '#2D6A4F' }} />;
       case 'post':
         return <PostIcon sx={{ color: '#2D6A4F' }} />;
       default:
@@ -88,13 +111,36 @@ const NotificationDialog = ({ open, onClose }) => {
   const getNotificationMessage = (notification) => {
     switch (notification.type) {
       case 'like':
-        return 'liked your post ❤️';
+        return 'liked your post';
       case 'follow':
-        return 'started following you 👋';
+        return 'started following you';
       case 'post':
-        return 'mentioned you in a post 📝';
+        return 'mentioned you in a post';
       default:
         return 'interacted with you';
+    }
+  };
+
+  const handleFollowToggle = async (userId, username) => {
+    try {
+      await axios.post(`/api/user/follow/${userId}`);
+      
+      setFollowingUsers(prev => {
+        const newSet = new Set(prev);
+        const isCurrentlyFollowing = newSet.has(userId);
+        
+        if (isCurrentlyFollowing) {
+          newSet.delete(userId);
+        } else {
+          newSet.add(userId);
+        }
+        
+        debouncedToast(isCurrentlyFollowing ? `Unfollowed ${username}` : `Following ${username}`);
+        
+        return newSet;
+      });
+    } catch (error) {
+      toast.error('Error updating follow status');
     }
   };
 
@@ -176,16 +222,39 @@ const NotificationDialog = ({ open, onClose }) => {
                   }}
                 >
                   <Avatar
+                    component={Link}
+                    to={`/profile/${notification.from.username}`}
+                    onClick={onClose}
                     src={notification.from.profileIMG}
                     alt={notification.from.username}
-                    sx={{ width: 40, height: 40 }}
+                    sx={{ 
+                      width: 40, 
+                      height: 40,
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                      },
+                    }}
                   >
                     {notification.from.username[0].toUpperCase()}
                   </Avatar>
                   
                   <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {notification.from.username}{' '}
+                      <Link
+                        to={`/profile/${notification.from.username}`}
+                        onClick={onClose}
+                        style={{ 
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          '&:hover': {
+                            textDecoration: 'underline',
+                          }
+                        }}
+                      >
+                        {notification.from.username}
+                      </Link>{' '}
                       <Typography component="span" color="text.secondary">
                         {getNotificationMessage(notification)}
                       </Typography>
@@ -197,6 +266,30 @@ const NotificationDialog = ({ open, onClose }) => {
 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {getNotificationIcon(notification.type)}
+                    <Button
+                      variant={followingUsers.has(notification.from._id) ? "outlined" : "contained"}
+                      size="small"
+                      onClick={() => handleFollowToggle(notification.from._id, notification.from.username)}
+                      sx={{
+                        minWidth: 'unset',
+                        borderRadius: 2,
+                        p: 1,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        bgcolor: followingUsers.has(notification.from._id) ? 'transparent' : 'var(--accent-color)',
+                        borderColor: followingUsers.has(notification.from._id) ? 'var(--accent-color)' : 'transparent',
+                        color: followingUsers.has(notification.from._id) ? 'var(--accent-color)' : 'white',
+                        '&:hover': { 
+                          transform: 'scale(1.02)',
+                          bgcolor: 'var(--secondary-color)',
+                          borderColor: 'var(--secondary-color)',
+                          color: 'white',
+                        },
+                        transition: 'all 0.2s ease-in-out',
+                      }}
+                    >
+                      <PersonAddIcon fontSize="small" />
+                    </Button>
                     <IconButton 
                       size="small"
                       onClick={() => handleDeleteOne(notification._id)}
