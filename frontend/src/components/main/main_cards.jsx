@@ -105,8 +105,15 @@ const MainCards = () => {
     
     fetchPosts();
 
+    // Add event listener for post updates
+    const handlePostUpdate = () => {
+      fetchPosts();
+    };
+    window.addEventListener('postUpdated', handlePostUpdate);
+
     return () => {
       controller.abort();
+      window.removeEventListener('postUpdated', handlePostUpdate);
     };
   }, [viewMode, user]);
 
@@ -177,7 +184,8 @@ const MainCards = () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
         await axios.delete(`/api/post/${postId}`);
-        fetchPosts();
+        // Dispatch custom event
+        window.dispatchEvent(new Event('postUpdated'));
         toast.success('Post deleted successfully');
       } catch (error) {
         toast.error(error.response?.data?.message || 'Error deleting post');
