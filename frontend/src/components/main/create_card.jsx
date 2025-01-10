@@ -67,8 +67,9 @@ const FloatingCreatePost = () => {
     try {
       await axios.post('/api/post/create', formData);
       toast.success('Post created successfully!');
+      // Dispatch custom event
+      window.dispatchEvent(new Event('postUpdated'));
       handleClose();
-      // You might want to trigger a refresh of the posts list here
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error creating post');
     } finally {
