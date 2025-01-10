@@ -350,7 +350,10 @@ const EditCard = () => {
               position: 'sticky',
               bottom: 0,
               bgcolor: 'background.paper',
-              pt: 2,
+              pt: 1.5,
+              pb: 2,
+              mt: 2,
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
             }}>
               <Button
                 onClick={handleClose}
@@ -358,12 +361,14 @@ const EditCard = () => {
                 sx={{
                   borderRadius: 2,
                   textTransform: 'none',
-                  px: 3,
+                  px: 4,
+                  py: 1,
                   borderColor: '#F97316',
                   color: '#F97316',
                   '&:hover': {
                     borderColor: '#2D6A4F',
                     color: '#2D6A4F',
+                    backgroundColor: 'rgba(45, 106, 79, 0.04)',
                   },
                 }}
               >
@@ -375,13 +380,14 @@ const EditCard = () => {
                 sx={{
                   borderRadius: 2,
                   textTransform: 'none',
-                  px: 3,
+                  px: 4,
+                  py: 0,
                   bgcolor: '#F97316',
                   '&:hover': {
                     bgcolor: '#2D6A4F',
                     transform: 'scale(1.02)',
                   },
-                  transition: 'transform 0.2s ease',
+                  transition: 'all 0.2s ease',
                 }}
               >
                 Save Changes
