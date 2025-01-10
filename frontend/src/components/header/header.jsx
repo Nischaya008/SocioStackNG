@@ -166,7 +166,12 @@ const Header = () => {
         zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
-      <Toolbar sx={{ flexWrap: 'wrap', gap: 1, py: { xs: 1, md: 0 } }}>
+      <Toolbar sx={{ 
+        flexWrap: 'wrap', 
+        gap: 1, 
+        py: { xs: 1, md: 0 },
+        minHeight: { xs: 56 }
+      }}>
         {/* Logo and Name */}
         <Box 
           component="a"
@@ -175,7 +180,7 @@ const Header = () => {
             display: 'flex', 
             alignItems: 'center', 
             flexGrow: 0,
-            mr: { xs: 0, md: 2 },
+            mr: { xs: 1, md: 2 },
             textDecoration: 'none',
             cursor: 'pointer',
             '&:hover': {
@@ -188,9 +193,9 @@ const Header = () => {
             src="https://github.com/Nischaya008/Image_hosting/blob/main/SSN.gif?raw=true"
             alt="Logo"
             sx={{
-              height: 40,  // Adjust size as needed
+              height: { xs: 35, md: 40 },
               width: 'auto',
-              mr: 1
+              mr: 0.5
             }}
           />
           <Typography
@@ -199,9 +204,9 @@ const Header = () => {
             sx={{
               fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: { xs: '.1rem', md: '.2rem' },
+              letterSpacing: { xs: '.05rem', md: '.2rem' },
               color: '#ecf0f1',
-              fontSize: { xs: '1rem', md: '1.25rem' }
+              fontSize: { xs: '0.9rem', md: '1.25rem' }
             }}
           >
             socioStackNG
