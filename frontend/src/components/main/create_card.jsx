@@ -107,8 +107,32 @@ const FloatingCreatePost = () => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            bgcolor: 'var(--primary-color)',
-            boxShadow: 24,
+            bgcolor: 'var(--background-paper)',
+            color: 'var(--text-color)',
+            '& .MuiTextField-root': {
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'var(--border-color)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'var(--accent-color)',
+                },
+                '& input': {
+                  color: 'var(--text-color)',
+                },
+                '& textarea': {
+                  color: 'var(--text-color)',
+                }
+              },
+              '& .MuiInputLabel-root': {
+                color: 'var(--muted-text-color)',
+              },
+            },
+          }
+        }}
+        sx={{
+          '& .MuiBackdrop-root': {
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
           }
         }}
       >
@@ -116,16 +140,19 @@ const FloatingCreatePost = () => {
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginTop: 1,
           p: 3,
-          pt: 4,
+          color: 'var(--text-color)',
         }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" component="div" sx={{ 
+            fontWeight: 600,
+            color: 'var(--text-color)', 
+          }}>
             Create New Post
           </Typography>
           <IconButton
             onClick={handleClose}
             sx={{
+              color: 'var(--text-color)',
               '&:hover': { 
                 color: 'error.main',
                 transform: 'scale(1.1)',
@@ -137,7 +164,7 @@ const FloatingCreatePost = () => {
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ p: 2 }}>
+        <DialogContent sx={{ p: 3 }}>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
