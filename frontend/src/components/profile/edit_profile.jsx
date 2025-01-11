@@ -14,6 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Close as CloseIcon, CameraAlt as CameraIcon } from '@mui/icons-material';
+import { useTheme } from '../../contexts/theme_context.jsx';
 
 const compressImage = (file) => {
   return new Promise((resolve) => {
@@ -54,6 +55,7 @@ const compressImage = (file) => {
 };
 
 const EditProfile = ({ user, onClose, onSave }) => {
+  const { darkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -65,6 +67,9 @@ const EditProfile = ({ user, onClose, onSave }) => {
     profileIMG: user?.profileIMG || '',
     coverIMG: user?.coverIMG || ''
   });
+
+  const textColor = darkMode ? '#ffffff' : 'var(--text-color)';
+  const mutedTextColor = darkMode ? 'rgba(255, 255, 255, 0.7)' : 'var(--muted-text-color)';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,7 +130,7 @@ const EditProfile = ({ user, onClose, onSave }) => {
       PaperProps={{
         sx: {
           borderRadius: 2,
-          bgcolor: '#F3F4F6',
+          bgcolor: 'var(--background-paper)',
           maxHeight: '90vh',
         }
       }}
@@ -135,23 +140,22 @@ const EditProfile = ({ user, onClose, onSave }) => {
         justifyContent: 'space-between', 
         alignItems: 'center',
         p: 3,
-        borderBottom: '1px solid rgba(0,0,0,0.1)'
+        borderBottom: '1px solid',
+        borderColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0,0,0,0.1)',
+        color: textColor,
       }}>
-        <Typography variant="h6" sx={{ color: '#2D6A4F' }}>Edit Profile</Typography>
-        <IconButton onClick={onClose}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>Edit Profile</Typography>
+        <IconButton onClick={onClose} sx={{ color: textColor }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
+      <DialogContent sx={{ p: 3, bgcolor: 'var(--primary-color)' }}>
         <form onSubmit={handleSubmit}>
           <Box sx={{ 
             display: 'grid', 
-            gridTemplateColumns: {
-              xs: '1fr',              // Single column on mobile
-              md: '1fr 1fr'          // Two columns on medium and larger screens
-            },
-            gap: { xs: 2, md: 4 },   // Smaller gap on mobile
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            gap: { xs: 2, md: 4 },
             '& > *': { margin: '0 !important' }
           }}>
             {/* Left Column */}
@@ -161,7 +165,7 @@ const EditProfile = ({ user, onClose, onSave }) => {
                 display: 'flex', 
                 gap: 2, 
                 alignItems: 'center',
-                bgcolor: 'white',
+                bgcolor: 'var(--background-paper)',
                 p: 2,
                 borderRadius: 2,
                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
@@ -219,7 +223,7 @@ const EditProfile = ({ user, onClose, onSave }) => {
               <Box sx={{ 
                 position: 'relative', 
                 height: { xs: 150, md: 200 }, 
-                bgcolor: 'white',
+                bgcolor: 'var(--background-paper)',
                 borderRadius: 2,
                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
               }}>
@@ -284,16 +288,22 @@ const EditProfile = ({ user, onClose, onSave }) => {
                 rows={4}
                 variant="outlined"
                 sx={{
-                  bgcolor: 'white',
-                  borderRadius: 1,
                   '& .MuiOutlinedInput-root': {
+                    bgcolor: 'var(--background-paper)',
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
                     '&:hover fieldset': {
-                      borderColor: '#F97316',
+                      borderColor: 'var(--accent-color)',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#F97316',
+                      borderColor: 'var(--accent-color)',
                     },
-                  }
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
                 }}
               />
             </Box>
@@ -303,7 +313,9 @@ const EditProfile = ({ user, onClose, onSave }) => {
               display: 'flex', 
               flexDirection: 'column', 
               gap: { xs: 2, md: 3 },
-              mt: { xs: 0, md: 4 }
+              mt: { xs: 0, md: 7 },
+              position: 'relative',
+              top: { xs: 0, md: '20px' },
             }}>
               {['name', 'email', 'link', 'currentPassword', 'newPassword'].map((field) => (
                 <TextField
@@ -317,35 +329,47 @@ const EditProfile = ({ user, onClose, onSave }) => {
                   variant="outlined"
                   helperText={field === 'newPassword' ? "Leave blank if you don't want to change password" : ''}
                   sx={{
-                    bgcolor: 'white',
-                    borderRadius: 1,
                     '& .MuiOutlinedInput-root': {
+                      bgcolor: 'var(--background-paper)',
+                      color: textColor,
+                      '& fieldset': {
+                        borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                      },
                       '&:hover fieldset': {
-                        borderColor: '#F97316',
+                        borderColor: 'var(--accent-color)',
                       },
                       '&.Mui-focused fieldset': {
-                        borderColor: '#F97316',
+                        borderColor: 'var(--accent-color)',
                       },
-                    }
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: mutedTextColor,
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: mutedTextColor,
+                    },
                   }}
                 />
               ))}
 
+              {/* Buttons Container */}
               <Box sx={{ 
                 display: 'flex', 
                 gap: 2, 
-                justifyContent: 'flex-end', 
-                mt: { xs: 2, md: 'auto' }
+                justifyContent: 'flex-end',
+                mt: { xs: 2, md: 0 },
+                position: 'relative',
               }}>
                 <Button 
                   onClick={onClose} 
                   variant="outlined"
                   sx={{
-                    borderColor: '#2D6A4F',
-                    color: '#2D6A4F',
+                    borderColor: 'var(--accent-color)',
+                    color: 'var(--accent-color)',
                     '&:hover': {
-                      borderColor: '#2D6A4F',
-                      bgcolor: 'rgba(45, 106, 79, 0.04)',
+                      borderColor: 'var(--secondary-color)',
+                      color: 'var(--secondary-color)',
+                      bgcolor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(45, 106, 79, 0.04)',
                     }
                   }}
                 >
@@ -356,8 +380,9 @@ const EditProfile = ({ user, onClose, onSave }) => {
                   variant="contained"
                   disabled={loading}
                   sx={{
-                    bgcolor: '#F97316',
-                    '&:hover': { bgcolor: '#2D6A4F' },
+                    bgcolor: 'var(--accent-color)',
+                    color: '#ffffff',
+                    '&:hover': { bgcolor: 'var(--secondary-color)' },
                     '&:disabled': { bgcolor: 'rgba(249, 115, 22, 0.5)' }
                   }}
                 >
