@@ -89,6 +89,7 @@ const Header = () => {
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -157,6 +158,26 @@ const Header = () => {
     setShowResults(false);
     setSearchQuery('');
   };
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (user) {
+        try {
+          const response = await axios.get('/api/notif/unread');
+          setUnreadCount(response.data.count);
+        } catch (error) {
+          console.error('Error fetching unread notifications:', error);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+    
+    // Set up interval to check periodically
+    const interval = setInterval(fetchUnreadCount, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [user]);
 
   return (
     <AppBar 
@@ -325,19 +346,52 @@ const Header = () => {
           order: { xs: 2, md: 3 },
           ml: { xs: 'auto', md: 0 }
         }}>
-          <IconButton
-            size="medium"
-            color="inherit"
-            onClick={() => setNotificationDialogOpen(true)}
-            sx={{
-              '&:hover': { 
-                transform: 'scale(1.1)',
-              },
-              transition: 'transform 0.2s ease',
-            }}
-          >
-            <NotificationsIcon />
-          </IconButton>
+          <Box sx={{ position: 'relative' }}>
+            <IconButton
+              size="medium"
+              color="inherit"
+              onClick={() => {
+                setNotificationDialogOpen(true);
+                setUnreadCount(0); // Reset count when opening notifications
+              }}
+              sx={{
+                '&:hover': { 
+                  transform: 'scale(1.1)',
+                },
+                transition: 'transform 0.2s ease',
+              }}
+            >
+              <NotificationsIcon />
+            </IconButton>
+            {unreadCount > 0 && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 4,
+                  right: 4,
+                  width: 8,
+                  height: 8,
+                  backgroundColor: '#ef4444',
+                  borderRadius: '50%',
+                  animation: 'pulse 2s infinite',
+                  '@keyframes pulse': {
+                    '0%': {
+                      transform: 'scale(0.95)',
+                      boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
+                    },
+                    '70%': {
+                      transform: 'scale(1)',
+                      boxShadow: '0 0 0 6px rgba(239, 68, 68, 0)',
+                    },
+                    '100%': {
+                      transform: 'scale(0.95)',
+                      boxShadow: '0 0 0 0 rgba(239, 68, 68, 0)',
+                    },
+                  },
+                }}
+              />
+            )}
+          </Box>
 
           {user ? (
             <>
