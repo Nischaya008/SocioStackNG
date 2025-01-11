@@ -22,8 +22,10 @@ import {
 } from '@mui/icons-material';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { useTheme } from '../../contexts/theme_context.jsx';
 
 const SignUp = ({ open, onClose }) => {
+  const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     username: '',
     name: '',
@@ -99,6 +101,9 @@ const SignUp = ({ open, onClose }) => {
     }
   };
 
+  const textColor = darkMode ? '#ffffff' : 'inherit';
+  const mutedTextColor = darkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary';
+
   return (
     <Dialog 
       open={open} 
@@ -158,6 +163,34 @@ const SignUp = ({ open, onClose }) => {
                 value={formData.username}
                 onChange={handleChange}
                 required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
+                }}
               />
 
               <TextField
@@ -167,6 +200,34 @@ const SignUp = ({ open, onClose }) => {
                 value={formData.name}
                 onChange={handleChange}
                 required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
+                }}
               />
 
               <TextField
@@ -177,6 +238,34 @@ const SignUp = ({ open, onClose }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
+                }}
               />
 
               <TextField
@@ -195,6 +284,34 @@ const SignUp = ({ open, onClose }) => {
                       </IconButton>
                     </InputAdornment>
                   ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
                 }}
               />
 
@@ -215,13 +332,44 @@ const SignUp = ({ open, onClose }) => {
                     </InputAdornment>
                   ),
                 }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
+                }}
               />
 
               {/* Password requirements list */}
               <List dense sx={{ 
                 bgcolor: 'var(--primary-color)',
-                borderRadius: 1, 
-                mt: 1 
+                borderRadius: 1,
+                mt: 1,
+                '& .MuiTypography-root': {
+                  color: textColor,
+                },
               }}>
                 {Object.entries(passwordCriteria).map(([key, checkFn]) => (
                   <ListItem key={key}>
