@@ -268,8 +268,9 @@ const MainCards = () => {
               position: 'sticky',
               top: 72,
               zIndex: 1200,
-              bgcolor: 'var(--background-paper)',
+              bgcolor: 'transparent',
               py: 1,
+              borderRadius: 2,
             }}
           >
             <ToggleButtonGroup
@@ -287,6 +288,7 @@ const MainCards = () => {
                   px: { xs: 2, sm: 3 },
                   py: 1,
                   color: 'var(--text-color)',
+                  borderRadius: '8px !important',
                   '&.Mui-selected': {
                     bgcolor: 'var(--accent-color)',
                     color: 'white',
@@ -302,7 +304,7 @@ const MainCards = () => {
               }}
             >
               <ToggleButton value="all" aria-label="all posts">
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
                   <Public />
                   <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>All Posts</Typography>
                 </Box>
@@ -310,7 +312,7 @@ const MainCards = () => {
               {user && (
                 <>
                   <ToggleButton value="liked" aria-label="liked posts">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1}}>
                       <Favorite />
                       <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>Liked</Typography>
                     </Box>
