@@ -8,6 +8,13 @@ export const getNotifs=async(req,res)=>{
             path:"from",
             select:"username profileIMG"
         });
+
+        // Mark all notifications as read
+        await Notification.updateMany(
+            { to: userid, read: false },
+            { $set: { read: true } }
+        );
+
         if(notifications.length===0){
             return res.status(404).json({message:"No notifications found"});
         }
@@ -49,5 +56,16 @@ export const delNotif=async(req,res)=>{
     }catch(error){
         console.log(error);
         return res.status(500).json({message:"Server error"});
+    }
+};
+
+export const getUnreadCount = async (req, res) => {
+    try {
+        const userid = req.user._id;
+        const count = await Notification.countDocuments({ to: userid, read: false });
+        return res.status(200).json({ count });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Server error" });
     }
 };
