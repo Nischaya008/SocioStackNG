@@ -24,6 +24,7 @@ import {
   DialogActions,
   Alert,
   AlertTitle,
+  Card,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -42,6 +43,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import EditProfile from './edit_profile';
+import { useTheme } from '../../contexts/theme_context';
 
 const Profile = () => {
   const { username } = useParams();
@@ -59,6 +61,10 @@ const Profile = () => {
   const [deleteUsername, setDeleteUsername] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const { darkMode } = useTheme();
+
+  const textColor = darkMode ? '#ffffff' : 'var(--text-color)';
+  const mutedTextColor = darkMode ? 'rgba(255, 255, 255, 0.7)' : 'var(--muted-text-color)';
 
   useEffect(() => {
     const fetchProfileAndPosts = async () => {
@@ -277,7 +283,7 @@ const Profile = () => {
           height: { xs: '200px', sm: '300px', md: '400px' },
           width: '100%',
           position: 'relative',
-          bgcolor: '#e0e0e0',
+          bgcolor: darkMode ? '#1E1E1E' : '#e0e0e0',
           overflow: 'hidden',
         }}
       >
@@ -310,7 +316,9 @@ const Profile = () => {
             sx={{
               width: '100%',
               height: '100%',
-              background: `linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%)`,
+              background: darkMode 
+                ? `linear-gradient(135deg, #1E1E1E 0%, #333333 100%)`
+                : `linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%)`,
             }}
           />
         )}
@@ -323,7 +331,8 @@ const Profile = () => {
             p: { xs: 2, md: 4 },
             borderRadius: 2,
             position: 'relative',
-            bgcolor: 'var(--primary-color)',
+            bgcolor: 'var(--background-paper)',
+            color: textColor,
           }}
         >
           {/* Profile Image */}
@@ -415,12 +424,12 @@ const Profile = () => {
           >
             <Typography variant="h4" sx={{ 
               fontWeight: 600, 
-              color: 'var(--secondary-color)',
+              color: darkMode ? textColor : 'var(--secondary-color)',
               mb: 0.5,
             }}>
               {profileData.name}
             </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+            <Typography variant="h6" sx={{ mb: 1, color: mutedTextColor }}>
               @{profileData.username}
             </Typography>
 
@@ -430,7 +439,7 @@ const Profile = () => {
               alignItems: 'center', 
               gap: 1,
               justifyContent: { xs: 'center', md: 'flex-start' },
-              color: 'text.secondary',
+              color: mutedTextColor,
               mb: 2,
             }}>
               <CalendarIcon fontSize="small" />
@@ -446,14 +455,14 @@ const Profile = () => {
                   mb: 3, 
                   maxWidth: '600px',
                   mx: { xs: 'auto', md: 0 },
-                  color: '#34495e',
+                  color: textColor,
                 }}
               >
                 {profileData.bio}
               </Typography>
             )}
 
-            <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 3, borderColor: 'var(--border-color)' }} />
 
             {/* Contact Information */}
             <Box sx={{ 
@@ -466,9 +475,9 @@ const Profile = () => {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 1,
-                color: '#34495e',
+                color: textColor,
               }}>
-                <EmailIcon color="action" />
+                <EmailIcon sx={{ color: mutedTextColor }} />
                 <Typography>{profileData.email}</Typography>
               </Box>
 
@@ -504,11 +513,11 @@ const Profile = () => {
                 justifyContent: { xs: 'center', md: 'flex-start' },
               }}
             >
-              <Typography variant="body2" color="text.secondary">
-                <strong>{profileData.followers?.length || 0}</strong> Followers
+              <Typography variant="body2" sx={{ color: mutedTextColor }}>
+                <strong style={{ color: textColor }}>{profileData.followers?.length || 0}</strong> Followers
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                <strong>{profileData.following?.length || 0}</strong> Following
+              <Typography variant="body2" sx={{ color: mutedTextColor }}>
+                <strong style={{ color: textColor }}>{profileData.following?.length || 0}</strong> Following
               </Typography>
             </Box>
           </Box>
@@ -521,7 +530,7 @@ const Profile = () => {
           <Box
             sx={{
               borderBottom: 1,
-              borderColor: 'divider',
+              borderColor: darkMode ? 'rgba(255, 255, 255, 0.12)' : 'var(--border-color)',
               mb: 3,
               pb: 1,
               display: 'flex',
@@ -533,7 +542,7 @@ const Profile = () => {
               variant="h6" 
               sx={{ 
                 fontWeight: 600,
-                color: 'text.primary',
+                color: textColor,
                 textAlign: { xs: 'center', md: 'left' }
               }}
             >
@@ -541,7 +550,7 @@ const Profile = () => {
             </Typography>
             <Typography 
               variant="body2" 
-              color="text.secondary"
+              sx={{ color: mutedTextColor }}
             >
               {posts.length} {posts.length === 1 ? 'post' : 'posts'}
             </Typography>
@@ -568,18 +577,17 @@ const Profile = () => {
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={2.5}>  {/* Reduced spacing for better density */}
+            <Grid container spacing={2.5}>
               {posts.map((post) => (
                 <Grid item xs={12} key={post._id}>
-                  <Paper
+                  <Card 
                     elevation={0}
-                    sx={{
-                      p: { xs: 2, md: 3 },
+                    sx={{ 
                       borderRadius: 2,
-                      bgcolor: 'var(--primary-color)',
-                      border: 1,
-                      borderColor: 'divider',
-                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                      bgcolor: 'var(--background-paper)',
+                      color: textColor,
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                       '&:hover': {
                         transform: 'translateY(-2px)',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
@@ -591,8 +599,10 @@ const Profile = () => {
                         variant="h6" 
                         sx={{ 
                           fontWeight: 600,
-                          color: 'text.primary',
-                          fontSize: { xs: '1.1rem', md: '1.25rem' }
+                          color: textColor,
+                          fontSize: { xs: '1.1rem', md: '1.25rem' },
+                          px: 3,
+                          pt: 2,
                         }}
                       >
                         {post.title}
@@ -601,11 +611,11 @@ const Profile = () => {
                       {post.image && (
                         <Box 
                           sx={{ 
+                            position: 'relative',
                             width: '100%',
                             height: { xs: 200, md: 300 },
-                            borderRadius: 2,
                             overflow: 'hidden',
-                            backgroundColor: 'action.hover',
+                            backgroundColor: darkMode ? '#222222' : 'grey.50',
                             cursor: 'pointer',
                           }}
                           onClick={() => handleImageClick(post.image)}
@@ -617,7 +627,7 @@ const Profile = () => {
                             sx={{
                               width: '100%',
                               height: '100%',
-                              objectFit: 'cover',
+                              objectFit: 'contain',
                               transition: 'transform 0.3s ease',
                               '&:hover': {
                                 transform: 'scale(1.02)',
@@ -629,14 +639,18 @@ const Profile = () => {
 
                       <Typography 
                         variant="body1" 
-                        color="text.secondary"
                         sx={{
-                          fontSize: { xs: '0.9rem', md: '1rem' },
-                          lineHeight: 1.6
+                          px: 3,
+                          color: 'var(--muted-text-color)',
+                          lineHeight: 1.6,
+                          letterSpacing: '0.015em',
+                          fontWeight: 500,
                         }}
                       >
                         {post.description}
                       </Typography>
+
+                      <Divider sx={{ mx: 2, borderColor: 'var(--border-color)' }} />
 
                       <Box 
                         sx={{ 
@@ -654,7 +668,7 @@ const Profile = () => {
                           <IconButton 
                             onClick={() => handleLike(post._id)}
                             sx={{
-                              color: likedPosts.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                              color: likedPosts.has(post._id) ? 'var(--accent-color)' : textColor,
                               '&:hover': {
                                 color: likedPosts.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
                               },
@@ -663,7 +677,7 @@ const Profile = () => {
                           >
                             <FavoriteIcon />
                           </IconButton>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="body2" sx={{ color: textColor }}>
                             {post.likes.length}
                           </Typography>
                         </Box>
@@ -672,17 +686,16 @@ const Profile = () => {
                           <IconButton 
                             onClick={() => toggleComments(post._id)}
                             sx={{ 
-                              transition: 'transform 0.2s ease',
-                              '&:hover': { transform: 'scale(1.1)' },
-                              color: expandedComments.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                              color: expandedComments.has(post._id) ? 'var(--accent-color)' : textColor,
                               '&:hover': {
                                 color: expandedComments.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
                               },
+                              transition: 'all 0.2s ease',
                             }}
                           >
-                            <Comment color="inherit" />
+                            <Comment />
                           </IconButton>
-                          <Typography variant="body2">
+                          <Typography variant="body2" sx={{ color: textColor }}>
                             {post.comments.length}
                           </Typography>
                         </Box>
@@ -693,9 +706,9 @@ const Profile = () => {
                         <Box 
                           sx={{ 
                             p: 2,
-                            bgcolor: 'var(--primary-color)',
+                            bgcolor: 'var(--background-paper)',
                             borderTop: '1px solid',
-                            borderColor: 'divider',
+                            borderColor: 'var(--border-color)',
                           }}
                         >
                           {user ? (
@@ -710,7 +723,17 @@ const Profile = () => {
                                 sx={{
                                   '& .MuiOutlinedInput-root': {
                                     borderRadius: 2,
-                                    backgroundColor: 'background.paper',
+                                    backgroundColor: 'var(--primary-color)',
+                                    color: 'var(--text-color)',
+                                    '& fieldset': {
+                                      borderColor: 'var(--border-color)',
+                                    },
+                                    '&:hover fieldset': {
+                                      borderColor: 'var(--accent-color)',
+                                    },
+                                  },
+                                  '& .MuiInputBase-input::placeholder': {
+                                    color: 'var(--muted-text-color)',
                                   },
                                 }}
                               />
@@ -723,11 +746,11 @@ const Profile = () => {
                                   textTransform: 'none',
                                   px: 3,
                                   bgcolor: 'var(--accent-color)',
+                                  color: '#ffffff',
                                   '&:hover': {
                                     bgcolor: 'var(--secondary-color)',
-                                    transform: 'scale(1.02)',
                                   },
-                                  transition: 'transform 0.2s ease',
+                                  transition: 'all 0.2s ease',
                                 }}
                               >
                                 Post
@@ -736,75 +759,68 @@ const Profile = () => {
                           ) : (
                             <Typography
                               variant="body2"
-                              color="text.secondary"
-                              sx={{ textAlign: 'center', py: 2 }}
+                              sx={{ textAlign: 'center', py: 2, color: 'var(--muted-text-color)' }}
                             >
                               Please log in to comment on posts
                             </Typography>
                           )}
                           
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {post.comments && post.comments.length > 0 && post.comments
-                              .slice(0, 3)
-                              .filter(comment => comment && comment.user) // Only show comments with valid user data
-                              .map((comment, index) => (
-                                <Box 
-                                  key={comment._id || index} 
+                            {post.comments.slice(0, 3).map((comment, index) => (
+                              <Box 
+                                key={index} 
+                                sx={{ 
+                                  display: 'flex', 
+                                  gap: 1.5,
+                                  p: 1,
+                                  borderRadius: 1,
+                                }}
+                              >
+                                <Avatar
+                                  src={comment.user?.profileIMG}
+                                  alt={comment.user?.username || 'User'}
                                   sx={{ 
-                                    display: 'flex', 
-                                    gap: 1.5,
-                                    p: 1,
-                                    borderRadius: 1,
-                                    '&:hover': {
-                                      bgcolor: 'background.paper',
-                                    },
-                                    transition: 'background-color 0.2s ease',
+                                    width: 32, 
+                                    height: 32,
+                                    border: '2px solid',
+                                    borderColor: 'var(--accent-color)',
                                   }}
                                 >
-                                  <Avatar
-                                    src={comment.user?.profileIMG}
-                                    alt={comment.user?.username || 'User'}
+                                  {comment.user?.username?.[0]?.toUpperCase() || 'U'}
+                                </Avatar>
+                                <Box>
+                                  <Typography
+                                    component={Link}
+                                    to={`/profile/${comment.user?.username}`}
                                     sx={{ 
-                                      width: 32, 
-                                      height: 32,
-                                      border: '2px solid',
-                                      borderColor: 'primary.light',
+                                      color: textColor,
+                                      textDecoration: 'none',
+                                      fontWeight: 600,
+                                      '&:hover': { 
+                                        color: 'var(--accent-color)',
+                                        textDecoration: 'underline',
+                                      },
                                     }}
                                   >
-                                    {comment.user?.username?.[0]?.toUpperCase() || 'U'}
-                                  </Avatar>
-                                  <Box>
-                                    <Typography
-                                      component={Link}
-                                      to={`/profile/${comment.user?.username}`}
-                                      variant="subtitle2"
-                                      sx={{ 
-                                        color: 'text.primary',
-                                        textDecoration: 'none',
-                                        fontWeight: 600,
-                                        '&:hover': { 
-                                          color: 'primary.main',
-                                          textDecoration: 'underline',
-                                        },
-                                      }}
-                                    >
-                                      {comment.user?.username || 'Unknown User'}
-                                    </Typography>
-                                    <Typography 
-                                      variant="body2" 
-                                      color="text.secondary"
-                                      sx={{ mt: 0.5 }}
-                                    >
-                                      {comment.text}
-                                    </Typography>
-                                  </Box>
+                                    {comment.user?.username || 'Unknown User'}
+                                  </Typography>
+                                  <Typography 
+                                    variant="body2" 
+                                    sx={{ 
+                                      mt: 0.5,
+                                      color: mutedTextColor,
+                                    }}
+                                  >
+                                    {comment.text}
+                                  </Typography>
                                 </Box>
-                              ))}
+                              </Box>
+                            ))}
                           </Box>
                         </Box>
                       </Collapse>
                     </Box>
-                  </Paper>
+                  </Card>
                 </Grid>
               ))}
             </Grid>
