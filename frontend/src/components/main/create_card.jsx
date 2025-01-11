@@ -165,7 +165,7 @@ const FloatingCreatePost = () => {
         </DialogTitle>
 
         <DialogContent sx={{ p: 3 }}>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ marginTop: '12px' }}>
             <TextField
               fullWidth
               label="Title"
@@ -174,7 +174,7 @@ const FloatingCreatePost = () => {
               onChange={handleInputChange}
               required
               variant="outlined"
-              sx={{ mb: 2 }}
+              sx={{ mb: 3 }}
             />
 
             <TextField
@@ -187,10 +187,10 @@ const FloatingCreatePost = () => {
               multiline
               rows={4}
               variant="outlined"
-              sx={{ mb: 2 }}
+              sx={{ mb: 3 }}
             />
 
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 3 }}>
               <input
                 accept="image/*"
                 type="file"
