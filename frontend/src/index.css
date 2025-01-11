@@ -6,6 +6,20 @@
   --primary-color: #F3F4F6;
   --accent-color: #F97316;
   --secondary-color: #2D6A4F;
+  --text-color: #333333;
+  --muted-text-color: #666666;
+  --border-color: #e5e7eb;
+  --background-paper: #ffffff;
+}
+
+[data-theme='dark'] {
+  --primary-color: #333333;
+  --accent-color: #F97316;
+  --secondary-color: #52B788;
+  --text-color: #E4E4E7;
+  --muted-text-color: #9CA3AF;
+  --border-color: #333333;
+  --background-paper: #1E1E1E;
 }
 
 body {
@@ -16,7 +30,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--primary-color);
-  color: #333333;
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
