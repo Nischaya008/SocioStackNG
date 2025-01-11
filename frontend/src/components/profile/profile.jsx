@@ -329,6 +329,7 @@ const Profile = () => {
           elevation={3}
           sx={{
             p: { xs: 2, md: 4 },
+            pb: { xs: 6 },
             borderRadius: 2,
             position: 'relative',
             bgcolor: 'var(--background-paper)',
@@ -371,8 +372,10 @@ const Profile = () => {
               startIcon={isFollowing ? null : <PersonAddIcon />}
               sx={{
                 position: 'absolute',
-                top: 16,
-                right: 16,
+                top: { xs: 'auto', md: 16 },
+                bottom: { xs: 16, md: 'auto' },
+                right: { xs: '50%', md: 16 },
+                transform: { xs: 'translateX(50%)', md: 'none' },
                 borderRadius: 2,
                 px: 3,
                 py: 1,
@@ -382,7 +385,10 @@ const Profile = () => {
                 borderColor: isFollowing ? 'var(--accent-color)' : 'transparent',
                 color: isFollowing ? 'var(--accent-color)' : 'white',
                 '&:hover': { 
-                  transform: 'scale(1.02)',
+                  transform: { 
+                    xs: 'translateX(50%) scale(1.02)',
+                    md: 'scale(1.02)' 
+                  },
                   bgcolor: 'var(--secondary-color)',
                   borderColor: 'var(--secondary-color)',
                   color: 'white',
@@ -476,14 +482,22 @@ const Profile = () => {
                 alignItems: 'center', 
                 gap: 1,
                 color: textColor,
+                maxWidth: '100%',
+                wordBreak: 'break-word',
               }}>
-                <EmailIcon sx={{ color: mutedTextColor }} />
-                <Typography>{profileData.email}</Typography>
+                <EmailIcon sx={{ color: mutedTextColor, flexShrink: 0 }} />
+                <Typography sx={{ wordBreak: 'break-word' }}>{profileData.email}</Typography>
               </Box>
 
               {profileData.link && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <LinkIcon color="action" />
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1,
+                  maxWidth: '100%',
+                  wordBreak: 'break-word',
+                }}>
+                  <LinkIcon sx={{ color: mutedTextColor, flexShrink: 0 }} />
                   <Link 
                     href={profileData.link} 
                     target="_blank" 
@@ -495,6 +509,8 @@ const Profile = () => {
                         color: 'var(--secondary-color)',
                         textDecoration: 'underline',
                       },
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
                     }}
                   >
                     {profileData.link}
