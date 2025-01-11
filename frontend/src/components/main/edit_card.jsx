@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useTheme } from '../../contexts/theme_context';
 import {
   Dialog,
   DialogTitle,
@@ -57,6 +58,7 @@ const compressImage = (file) => {
 const EditCard = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
@@ -168,9 +170,29 @@ const EditCard = () => {
       PaperProps={{
         sx: {
           borderRadius: 2,
-          bgcolor: 'var(--primary-color)',
+          bgcolor: 'var(--background-paper)',
+          color: 'var(--text-color)',
           m: 2,
           maxHeight: 'calc(100vh - 32px)',
+          '& .MuiTextField-root': {
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: 'var(--border-color)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'var(--accent-color)',
+              },
+              '& input': {
+                color: 'var(--text-color)',
+              },
+              '& textarea': {
+                color: 'var(--text-color)',
+              }
+            },
+            '& .MuiInputLabel-root': {
+              color: 'var(--muted-text-color)',
+            },
+          },
         }
       }}
       BackdropProps={{
@@ -186,19 +208,20 @@ const EditCard = () => {
           justifyContent: 'space-between', 
           alignItems: 'center',
           p: 3,
-          pt: 4,
-          position: 'sticky',
-          top: 0,
-          bgcolor: 'background.paper',
-          zIndex: 1,
+          color: 'var(--text-color)',
+          bgcolor: 'var(--background-paper)',
         }}
       >
-        <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+        <Typography variant="h6" component="div" sx={{ 
+          fontWeight: 600,
+          color: 'var(--text-color)', 
+        }}>
           Edit Post
         </Typography>
         <IconButton
           onClick={handleClose}
           sx={{
+            color: 'var(--text-color)',
             '&:hover': { 
               color: 'error.main',
               transform: 'scale(1.1)',
@@ -213,19 +236,19 @@ const EditCard = () => {
       <DialogContent 
         sx={{ 
           p: 3,
-          mt: 1.5,
+          bgcolor: 'var(--background-paper)',
           '&::-webkit-scrollbar': {
             width: '8px',
           },
           '&::-webkit-scrollbar-track': {
-            background: '#f1f1f1',
+            background: 'var(--primary-color)',
             borderRadius: '4px',
           },
           '&::-webkit-scrollbar-thumb': {
-            background: '#888',
+            background: 'var(--accent-color)',
             borderRadius: '4px',
             '&:hover': {
-              background: '#666',
+              background: 'var(--secondary-color)',
             },
           },
         }}
@@ -309,7 +332,7 @@ const EditCard = () => {
                     height: 200,
                     borderRadius: 2,
                     overflow: 'hidden',
-                    bgcolor: 'grey.50',
+                    bgcolor: darkMode ? '#333333' : '#F3F4F6',
                   }}
                 >
                   <img
@@ -349,11 +372,12 @@ const EditCard = () => {
               justifyContent: 'flex-end',
               position: 'sticky',
               bottom: 0,
-              bgcolor: 'background.paper',
+              bgcolor: darkMode ? '#1E1E1E' : '#ffffff',
               pt: 1.5,
               pb: 2,
               mt: 2,
-              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              borderTop: '1px solid',
+              borderColor: 'var(--border-color)',
             }}>
               <Button
                 onClick={handleClose}
@@ -365,10 +389,11 @@ const EditCard = () => {
                   py: 1,
                   borderColor: '#F97316',
                   color: '#F97316',
+                  bgcolor: darkMode ? 'rgba(249, 115, 22, 0.1)' : 'transparent',
                   '&:hover': {
                     borderColor: '#2D6A4F',
                     color: '#2D6A4F',
-                    backgroundColor: 'rgba(45, 106, 79, 0.04)',
+                    backgroundColor: darkMode ? 'rgba(45, 106, 79, 0.1)' : 'rgba(45, 106, 79, 0.04)',
                   },
                 }}
               >
