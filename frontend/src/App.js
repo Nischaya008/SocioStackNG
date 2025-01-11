@@ -9,44 +9,47 @@ import MainCards from './components/main/main_cards.jsx';
 import EditCard from './components/main/edit_card.jsx';
 import ScrollToTop from './components/main/scrolltop.jsx';
 import FloatingCreatePost from './components/main/create_card.jsx';
+import { ThemeProvider } from './contexts/theme_context.jsx';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#F3F4F6',
-              color: '#2D6A4F',
-            },
-            success: {
-              iconTheme: {
-                primary: '#F97316',
-                secondary: '#F3F4F6',
+      <ThemeProvider>
+        <BrowserRouter>
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#F3F4F6',
+                color: '#2D6A4F',
               },
-            },
-            error: {
-              iconTheme: {
-                primary: '#F97316',
-                secondary: '#F3F4F6',
+              success: {
+                iconTheme: {
+                  primary: '#F97316',
+                  secondary: '#F3F4F6',
+                },
               },
-            },
-          }}
-        />
-        <Header />
-        <Toolbar />
-        <Routes>
-          <Route path="/" element={<MainCards />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile/:username" element={<Profile />} />
-          <Route path="/edit-post/:id" element={<EditCard />} />
-        </Routes>
-        <ScrollToTop />
-        <FloatingCreatePost />
-      </BrowserRouter>
+              error: {
+                iconTheme: {
+                  primary: '#F97316',
+                  secondary: '#F3F4F6',
+                },
+              },
+            }}
+          />
+          <Header />
+          <Toolbar />
+          <Routes>
+            <Route path="/" element={<MainCards />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/edit-post/:id" element={<EditCard />} />
+          </Routes>
+          <ScrollToTop />
+          <FloatingCreatePost />
+        </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
