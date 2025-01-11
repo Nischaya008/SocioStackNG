@@ -29,6 +29,7 @@ import { Public, Group } from '@mui/icons-material';
 import { debounce } from 'lodash';
 import SuggestedCard from './suggested_card.jsx';
 import AboutCard from './about_card.jsx';
+import { useTheme } from '../../contexts/theme_context.jsx';
 
 const MainCards = () => {
   const [posts, setPosts] = useState([]);
@@ -40,10 +41,13 @@ const MainCards = () => {
   const navigate = useNavigate();
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [followingUsers, setFollowingUsers] = useState(new Set());
+  const { darkMode } = useTheme();
 
   const debouncedToast = debounce((message) => {
     toast.success(message);
   }, 100);
+
+  const textColor = darkMode ? '#ffffff' : 'var(--text-color)';
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -264,7 +268,7 @@ const MainCards = () => {
               position: 'sticky',
               top: 72,
               zIndex: 1200,
-              bgcolor: 'background.default',
+              bgcolor: 'var(--background-paper)',
               py: 1,
             }}
           >
@@ -274,7 +278,7 @@ const MainCards = () => {
               onChange={handleViewChange}
               aria-label="post view mode"
               sx={{
-                bgcolor: 'background.paper',
+                bgcolor: 'var(--background-paper)',
                 borderRadius: 2,
                 boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
                 '& .MuiToggleButton-root': {
@@ -282,6 +286,7 @@ const MainCards = () => {
                   mx: 0.5,
                   px: { xs: 2, sm: 3 },
                   py: 1,
+                  color: 'var(--text-color)',
                   '&.Mui-selected': {
                     bgcolor: 'var(--accent-color)',
                     color: 'white',
@@ -290,7 +295,7 @@ const MainCards = () => {
                     },
                   },
                   '&:hover': {
-                    bgcolor: 'rgba(249, 115, 22, 0.04)', // Light version of accent color
+                    bgcolor: 'rgba(249, 115, 22, 0.04)',
                   },
                   transition: 'all 0.2s ease-in-out',
                 },
@@ -332,7 +337,7 @@ const MainCards = () => {
               minHeight="50vh"
               gap={2}
             >
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="h6" color="var(--muted-text-color)">
                 {viewMode === 'liked' ? 'No liked posts yet' :
                  viewMode === 'followed' ? 'No posts from followed users' :
                  'No posts available'}
@@ -346,6 +351,8 @@ const MainCards = () => {
                   sx={{ 
                     borderRadius: 2,
                     boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                    bgcolor: 'var(--background-paper)',
+                    color: textColor,
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                     '&:hover': {
                       transform: 'translateY(-2px)',
@@ -378,8 +385,9 @@ const MainCards = () => {
                               component={Link} 
                               to={`/edit-post/${post._id}`}
                               sx={{ 
+                                color: textColor,
                                 '&:hover': { 
-                                  color: 'primary.main',
+                                  color: 'var(--accent-color)',
                                   transform: 'scale(1.1)',
                                 },
                                 transition: 'all 0.2s ease',
@@ -390,8 +398,9 @@ const MainCards = () => {
                             <IconButton 
                               onClick={() => handleDelete(post._id)} 
                               sx={{ 
+                                color: textColor,
                                 '&:hover': { 
-                                  color: 'error.main',
+                                  color: '#ef4444',
                                   transform: 'scale(1.1)',
                                 },
                                 transition: 'all 0.2s ease',
@@ -410,11 +419,11 @@ const MainCards = () => {
                           component={Link}
                           to={`/profile/${post.user?.username}`}
                           sx={{ 
-                            color: 'text.primary', 
+                            color: textColor,
                             textDecoration: 'none',
                             fontWeight: 600,
                             '&:hover': { 
-                              color: 'primary.main',
+                              color: 'var(--accent-color)',
                               textDecoration: 'underline',
                             },
                             transition: 'color 0.2s ease',
@@ -443,7 +452,7 @@ const MainCards = () => {
                                 transform: 'scale(1.02)',
                                 bgcolor: 'var(--secondary-color)',
                                 borderColor: 'var(--secondary-color)',
-                                color: 'white',
+                                color: 'white !important',
                               },
                               transition: 'all 0.2s ease-in-out',
                             }}
@@ -456,16 +465,22 @@ const MainCards = () => {
                     subheader={
                       <Typography 
                         variant="caption" 
-                        color="text.secondary"
                         sx={{ 
                           fontStyle: 'italic',
                           mt: 0.5,
-                          display: 'block'
+                          display: 'block',
+                          color: textColor,
                         }}
                       >
                         {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                       </Typography>
                     }
+                    titleTypographyProps={{
+                      sx: { color: textColor }
+                    }}
+                    subheaderTypographyProps={{
+                      sx: { color: textColor }
+                    }}
                   />
 
                   <CardContent sx={{ pb: 1 }}>
@@ -474,7 +489,7 @@ const MainCards = () => {
                       gutterBottom
                       sx={{ 
                         fontWeight: 600,
-                        color: 'text.primary',
+                        color: textColor,
                         mb: 2,
                       }}
                     >
@@ -490,7 +505,7 @@ const MainCards = () => {
                         pt: '40%',
                         maxHeight: '400px',
                         overflow: 'hidden',
-                        backgroundColor: 'grey.50',
+                        backgroundColor: darkMode ? '#222222' : 'grey.50',
                       }}
                     >
                       <CardMedia
@@ -519,8 +534,8 @@ const MainCards = () => {
                   <CardContent>
                     <Typography 
                       variant="body1" 
-                      color="text.secondary"
                       sx={{ 
+                        color: 'var(--muted-text-color)',
                         lineHeight: 1.6,
                         letterSpacing: '0.015em',
                         fontWeight: 500,
@@ -530,19 +545,13 @@ const MainCards = () => {
                     </Typography>
                   </CardContent>
 
-                  <Divider sx={{ mx: 2 }} />
+                  <Divider sx={{ mx: 2, borderColor: 'var(--border-color)' }} />
 
-                  <CardActions 
-                    disableSpacing
-                    sx={{ 
-                      px: 2,
-                      py: 1,
-                    }}
-                  >
+                  <CardActions disableSpacing sx={{ px: 2, py: 1 }}>
                     <IconButton 
                       onClick={() => handleLike(post._id)}
                       sx={{
-                        color: likedPosts.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                        color: likedPosts.has(post._id) ? 'var(--accent-color)' : textColor,
                         '&:hover': {
                           color: likedPosts.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
                         },
@@ -551,7 +560,7 @@ const MainCards = () => {
                     >
                       <Favorite />
                     </IconButton>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{ color: textColor }}>
                       {post.likes.length}
                     </Typography>
 
@@ -560,15 +569,15 @@ const MainCards = () => {
                       sx={{ 
                         transition: 'transform 0.2s ease',
                         '&:hover': { transform: 'scale(1.1)' },
-                        color: expandedComments.has(post._id) ? 'var(--accent-color)' : 'text.secondary',
+                        color: expandedComments.has(post._id) ? 'var(--accent-color)' : textColor,
                         '&:hover': {
                           color: expandedComments.has(post._id) ? 'var(--secondary-color)' : 'var(--accent-color)',
                         },
                       }}
                     >
-                      <Comment color="inherit" />
+                      <Comment />
                     </IconButton>
-                    <Typography variant="body2">
+                    <Typography variant="body2" sx={{ color: textColor }}>
                       {post.comments.length}
                     </Typography>
                   </CardActions>
@@ -577,9 +586,9 @@ const MainCards = () => {
                     <Box 
                       sx={{ 
                         p: 2,
-                        bgcolor: 'grey.50',
+                        bgcolor: 'var(--background-paper)',
                         borderTop: '1px solid',
-                        borderColor: 'divider',
+                        borderColor: 'var(--border-color)',
                       }}
                     >
                       {user ? (
@@ -594,7 +603,17 @@ const MainCards = () => {
                             sx={{
                               '& .MuiOutlinedInput-root': {
                                 borderRadius: 2,
-                                backgroundColor: 'background.paper',
+                                backgroundColor: 'var(--primary-color)',
+                                color: 'var(--text-color)',
+                                '& fieldset': {
+                                  borderColor: 'var(--border-color)',
+                                },
+                                '&:hover fieldset': {
+                                  borderColor: 'var(--accent-color)',
+                                },
+                              },
+                              '& .MuiInputBase-input::placeholder': {
+                                color: 'var(--muted-text-color)',
                               },
                             }}
                           />
@@ -606,10 +625,12 @@ const MainCards = () => {
                               borderRadius: 2,
                               textTransform: 'none',
                               px: 3,
-                              transition: 'transform 0.2s ease',
-                              '&:not(:disabled):hover': {
-                                transform: 'scale(1.02)',
+                              bgcolor: 'var(--accent-color)',
+                              color: '#ffffff',
+                              '&:hover': {
+                                bgcolor: 'var(--secondary-color)',
                               },
+                              transition: 'all 0.2s ease',
                             }}
                           >
                             Post
@@ -618,8 +639,7 @@ const MainCards = () => {
                       ) : (
                         <Typography
                           variant="body2"
-                          color="text.secondary"
-                          sx={{ textAlign: 'center', py: 2 }}
+                          sx={{ textAlign: 'center', py: 2, color: 'var(--muted-text-color)' }}
                         >
                           Please log in to comment on posts
                         </Typography>
@@ -635,7 +655,7 @@ const MainCards = () => {
                               p: 1,
                               borderRadius: 1,
                               '&:hover': {
-                                bgcolor: 'background.paper',
+                                bgcolor: 'var(--primary-color)',
                               },
                               transition: 'background-color 0.2s ease',
                             }}
@@ -647,20 +667,19 @@ const MainCards = () => {
                                 width: 32, 
                                 height: 32,
                                 border: '2px solid',
-                                borderColor: 'primary.light',
+                                borderColor: 'var(--accent-color)',
                               }}
                             />
                             <Box>
                               <Typography
                                 component={Link}
                                 to={`/profile/${comment.user?.username}`}
-                                variant="subtitle2"
                                 sx={{ 
-                                  color: 'text.primary',
+                                  color: textColor,
                                   textDecoration: 'none',
                                   fontWeight: 600,
                                   '&:hover': { 
-                                    color: 'primary.main',
+                                    color: 'var(--accent-color)',
                                     textDecoration: 'underline',
                                   },
                                 }}
@@ -669,8 +688,10 @@ const MainCards = () => {
                               </Typography>
                               <Typography 
                                 variant="body2" 
-                                color="text.secondary"
-                                sx={{ mt: 0.5 }}
+                                sx={{ 
+                                  mt: 0.5,
+                                  color: textColor,
+                                }}
                               >
                                 {comment.text}
                               </Typography>
