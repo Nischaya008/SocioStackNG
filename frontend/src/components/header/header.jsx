@@ -35,6 +35,7 @@ import Signup from '../auth/signup';
 import SignIn from '../auth/signin';
 import { useAuth } from '../../contexts/auth_context.jsx';
 import NotificationDialog from '../notifications/notifs.jsx';
+import { useTheme } from '../../contexts/theme_context.jsx';
 
 // Styled components
 const Search = styled('div')(({ theme }) => ({
@@ -81,7 +82,7 @@ const Header = () => {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,8 +110,7 @@ const Header = () => {
   };
 
   const handleThemeChange = () => {
-    setDarkMode(!darkMode);
-    // You can implement theme switching logic here
+    toggleTheme();
   };
 
   const getInitial = (username) => {
@@ -163,7 +163,10 @@ const Header = () => {
       position="fixed"
       sx={{ 
         backgroundColor: 'var(--secondary-color)',
-        zIndex: (theme) => theme.zIndex.drawer + 1
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        '& *': { color: '#ffffff !important' },
+        '& .MuiSwitch-root': { color: 'inherit' },
+        '& .MuiSwitch-track': { backgroundColor: 'rgba(255, 255, 255, 0.3) !important' },
       }}
     >
       <Toolbar sx={{ 
@@ -252,6 +255,9 @@ const Header = () => {
                 zIndex: 1000,
                 boxShadow: 3,
                 borderRadius: 2,
+                bgcolor: 'var(--background-paper)',
+                border: '1px solid',
+                borderColor: 'var(--border-color)',
               }}
             >
               {searchResults.map((user) => (
@@ -265,24 +271,43 @@ const Header = () => {
                     gap: 2,
                     cursor: 'pointer',
                     '&:hover': {
-                      bgcolor: 'rgba(0, 0, 0, 0.04)',
+                      bgcolor: 'var(--primary-color)',
                     },
                     borderBottom: '1px solid',
-                    borderColor: 'divider',
+                    borderColor: 'var(--border-color)',
                   }}
                 >
                   <Avatar
                     src={user.profileIMG}
                     alt={user.username}
-                    sx={{ width: 40, height: 40 }}
+                    sx={{ 
+                      width: 40, 
+                      height: 40,
+                      border: '2px solid',
+                      borderColor: 'var(--accent-color)',
+                    }}
                   >
                     {user.username[0].toUpperCase()}
                   </Avatar>
                   <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
+                        fontWeight: 600,
+                        color: darkMode ? '#ffffff !important' : '#333333 !important',
+                        '&:hover': {
+                          color: 'var(--accent-color)',
+                        },
+                      }}
+                    >
                       {user.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: darkMode ? 'rgba(255, 255, 255, 0.7) !important' : 'rgb(0, 0, 0) !important',
+                      }}
+                    >
                       @{user.username}
                     </Typography>
                   </Box>
@@ -386,7 +411,15 @@ const Header = () => {
                       size="small"
                       checked={darkMode}
                       onChange={handleThemeChange}
-                      sx={{ ml: 'auto' }}
+                      sx={{ 
+                        ml: 'auto',
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'var(--accent-color)',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: 'var(--accent-color)',
+                        },
+                      }}
                     />
                   </Stack>
                 </MenuItem>
