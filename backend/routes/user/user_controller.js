@@ -50,12 +50,17 @@ export const follow_unfollow=async(req,res)=>{
             //Follow
             await User.findByIdAndUpdate(id,{$push:{followers:req.user._id}});
             await User.findByIdAndUpdate(req.user._id,{$push:{following:id}}); 
-            const newNotification=new Notification({
-                from:req.user._id,
-                to:id,
-                type:"follow"
-            });
-            await newNotification.save();
+
+            // Only create notification if the user is not following themselves
+            if(id !== req.user._id.toString()) {
+                const newNotification = new Notification({
+                    from: req.user._id,
+                    to: id,
+                    type: "follow"
+                });
+                await newNotification.save();
+            }
+
             res.status(200).json({message:"Followed successfully"}); 
         }
     }catch(error){
