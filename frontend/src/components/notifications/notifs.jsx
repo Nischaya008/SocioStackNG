@@ -27,8 +27,10 @@ import toast from 'react-hot-toast';
 import { alpha } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { useTheme } from '../../contexts/theme_context';
 
 const NotificationDialog = ({ open, onClose }) => {
+  const { darkMode } = useTheme();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [followingUsers, setFollowingUsers] = useState(new Set());
@@ -153,7 +155,7 @@ const NotificationDialog = ({ open, onClose }) => {
       PaperProps={{
         sx: {
           borderRadius: 2,
-          bgcolor: 'var(--primary-color)',
+          bgcolor: 'var(--background-paper)',
           maxHeight: '80vh'
         }
       }}
@@ -162,7 +164,8 @@ const NotificationDialog = ({ open, onClose }) => {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        pb: 1
+        pb: 1,
+        color: darkMode ? '#ffffff' : 'inherit',
       }}>
         <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
           Notifications 🔔
@@ -183,13 +186,22 @@ const NotificationDialog = ({ open, onClose }) => {
               Clear All
             </Button>
           )}
-          <IconButton onClick={onClose} size="small">
+          <IconButton 
+            onClick={onClose} 
+            size="small"
+            sx={{ 
+              color: darkMode ? '#ffffff' : 'inherit',
+              '&:hover': {
+                color: 'var(--accent-color)',
+              }
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </Box>
       </DialogTitle>
 
-      <Divider />
+      <Divider sx={{ borderColor: 'var(--border-color)' }} />
 
       <DialogContent sx={{ p: 0 }}>
         {loading ? (
@@ -217,7 +229,7 @@ const NotificationDialog = ({ open, onClose }) => {
                     bgcolor: notification.read ? 'transparent' : alpha('#F97316', 0.1),
                     position: 'relative',
                     '&:hover': {
-                      bgcolor: alpha('#2D6A4F', 0.1),
+                      bgcolor: darkMode ? alpha('#2D6A4F', 0.1) : 'var(--primary-color)',
                     },
                   }}
                 >
@@ -241,7 +253,13 @@ const NotificationDialog = ({ open, onClose }) => {
                   </Avatar>
                   
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        fontWeight: 500,
+                        color: darkMode ? '#ffffff' : 'inherit',
+                      }}
+                    >
                       <Link
                         to={`/profile/${notification.from.username}`}
                         onClick={onClose}
@@ -255,11 +273,21 @@ const NotificationDialog = ({ open, onClose }) => {
                       >
                         {notification.from.username}
                       </Link>{' '}
-                      <Typography component="span" color="text.secondary">
+                      <Typography 
+                        component="span" 
+                        sx={{ 
+                          color: darkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary'
+                        }}
+                      >
                         {getNotificationMessage(notification)}
                       </Typography>
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'text.secondary'
+                      }}
+                    >
                       {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                     </Typography>
                   </Box>
@@ -294,7 +322,7 @@ const NotificationDialog = ({ open, onClose }) => {
                       size="small"
                       onClick={() => handleDeleteOne(notification._id)}
                       sx={{ 
-                        color: 'text.secondary',
+                        color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'text.secondary',
                         '&:hover': { color: 'error.main' }
                       }}
                     >
