@@ -83,8 +83,8 @@ const AboutCard = () => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            bgcolor: 'var(--primary-color)',
-            backgroundImage: 'none',
+            bgcolor: 'var(--background-paper)',
+            color: 'var(--text-color)',
           }
         }}
         sx={{
@@ -100,14 +100,16 @@ const AboutCard = () => {
             justifyContent: 'space-between', 
             alignItems: 'center',
             p: 3,
+            color: 'var(--text-color)',
           }}
         >
-          <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 600, color: 'var(--text-color)' }}>
             About Me
           </Typography>
           <IconButton
             onClick={handleClose}
             sx={{
+              color: 'var(--text-color)',
               '&:hover': { 
                 color: 'error.main',
                 transform: 'scale(1.1)',
@@ -121,13 +123,12 @@ const AboutCard = () => {
 
         <DialogContent sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Mission Statement */}
             <Paper 
               elevation={0}
               sx={{ 
                 p: 3, 
                 bgcolor: 'var(--secondary-color)', 
-                color: 'white',
+                color: '#ffffff',
                 borderRadius: 2,
               }}
             >
@@ -140,23 +141,38 @@ const AboutCard = () => {
               </Typography>
             </Paper>
 
-            {/* About Section */}
             <Box>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'var(--secondary-color)' }}>
+              <Typography variant="h6" gutterBottom sx={{ 
+                fontWeight: 600, 
+                color: 'var(--secondary-color)' 
+              }}>
                 Behind the Code
               </Typography>
-              <Typography variant="body1" sx={{ mb: 2, color: 'text.secondary' }}>
-              I am a Computer Science Engineering student specializing in Artificial Intelligence and Machine Learning (Hons. IBM). My expertise lies in Full-stack Web Development, with proficiency in MongoDB, Express, React, Node.js, and C++ for Data Structures and Algorithms (DSA).
+              <Typography variant="body1" sx={{ 
+                mb: 2, 
+                color: 'var(--muted-text-color)' 
+              }}>
+                I am a Computer Science Engineering student specializing in Artificial Intelligence and Machine Learning (Hons. IBM). My expertise lies in Full-stack Web Development, with proficiency in MongoDB, Express, React, Node.js, and C++ for Data Structures and Algorithms (DSA).
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-              This is a scalable social media platform featuring real-time interactions, Material-UI design, image optimization via Cloudinary, JWT authentication, and responsive PWA capabilities. This project highlights my ability to develop modern, user-centric applications with a focus on performance and scalability.
+              <Typography variant="body1" sx={{ color: 'var(--muted-text-color)' }}>
+                This is a scalable social media platform featuring real-time interactions, Material-UI design, image optimization via Cloudinary, JWT authentication, and responsive PWA capabilities. This project highlights my ability to develop modern, user-centric applications with a focus on performance and scalability.
               </Typography>
             </Box>
 
             <Divider />
 
-            {/* Contact Links */}
-            <Box>
+            <Box sx={{ 
+              '& .MuiPaper-root': {
+                bgcolor: 'var(--background-paper)',
+                borderColor: 'var(--border-color)',
+              },
+              '& .MuiTypography-root': {
+                color: 'var(--text-color)',
+              },
+              '& .MuiTypography-colorTextSecondary': {
+                color: 'var(--muted-text-color)',
+              }
+            }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: 'var(--secondary-color)' }}>
                 Connect With Me
               </Typography>
@@ -179,12 +195,13 @@ const AboutCard = () => {
                         transform: 'translateY(-2px)',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                       },
+                      maxWidth: '100%',
                     }}
                   >
-                    <Box sx={{ color: 'var(--accent-color)' }}>
+                    <Box sx={{ color: 'var(--accent-color)', flexShrink: 0 }}>
                       {contact.icon}
                     </Box>
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                       <Typography variant="subtitle2" color="text.secondary">
                         {contact.label}
                       </Typography>
@@ -195,6 +212,10 @@ const AboutCard = () => {
                         sx={{
                           color: 'text.primary',
                           textDecoration: 'none',
+                          display: 'block',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
                           '&:hover': {
                             color: 'var(--accent-color)',
                             textDecoration: 'underline',
