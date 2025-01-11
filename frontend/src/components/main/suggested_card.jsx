@@ -81,8 +81,9 @@ const SuggestedCard = () => {
           borderRadius: 3,
           overflow: 'hidden',
           border: '1px solid',
-          borderColor: 'divider',
-          bgcolor: 'var(--primary-color)',
+          borderColor: 'var(--border-color)',
+          bgcolor: 'var(--background-paper)',
+          color: 'var(--text-color)',
           display: { xs: 'none', md: 'block' },
         }}
       >
@@ -92,18 +93,31 @@ const SuggestedCard = () => {
           </Typography>
         </Box>
 
-        <Divider />
+        <Divider sx={{ borderColor: 'var(--border-color)' }} />
 
         {loading ? (
           <Loading />
         ) : !Array.isArray(suggestedUsers) || suggestedUsers.length === 0 ? (
           <Box p={3}>
-            <Typography variant="body2" color="text.secondary" textAlign="center">
+            <Typography variant="body2" color="var(--muted-text-color)" textAlign="center">
               No suggestions available
             </Typography>
           </Box>
         ) : (
-          <Box sx={{ maxHeight: '400px', overflow: 'auto' }}>
+          <Box sx={{ 
+            maxHeight: '400px', 
+            overflow: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'var(--primary-color)',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'var(--accent-color)',
+              borderRadius: '4px',
+            },
+          }}>
             {suggestedUsers.map((suggestedUser) => (
               <Box
                 key={suggestedUser._id}
@@ -113,11 +127,11 @@ const SuggestedCard = () => {
                   alignItems: 'center',
                   gap: 2,
                   '&:hover': {
-                    bgcolor: 'action.hover',
+                    bgcolor: 'var(--primary-color)',
                   },
                   transition: 'background-color 0.2s ease',
                   borderBottom: '1px solid',
-                  borderColor: 'divider',
+                  borderColor: 'var(--border-color)',
                 }}
               >
                 <Avatar
@@ -143,7 +157,7 @@ const SuggestedCard = () => {
                     variant="subtitle2"
                     sx={{
                       textDecoration: 'none',
-                      color: 'text.primary',
+                      color: 'var(--text-color)',
                       fontWeight: 600,
                       display: 'block',
                       '&:hover': {
@@ -156,8 +170,8 @@ const SuggestedCard = () => {
                   </Typography>
                   <Typography
                     variant="body2"
-                    color="text.secondary"
                     sx={{ 
+                      color: 'var(--muted-text-color)',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
                       whiteSpace: 'nowrap',
