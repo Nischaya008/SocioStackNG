@@ -17,9 +17,11 @@ import {
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../../contexts/auth_context.jsx';
+import { useTheme } from '../../contexts/theme_context.jsx';
 
 const SignIn = ({ open, onClose }) => {
   const { login } = useAuth();
+  const { darkMode } = useTheme();
   const [formData, setFormData] = useState({
     usernameOrEmail: '',
     password: '',
@@ -30,6 +32,9 @@ const SignIn = ({ open, onClose }) => {
   const [loading, setLoading] = useState(false);
   
   const formRef = useRef(null);
+
+  const textColor = darkMode ? '#ffffff' : 'inherit';
+  const mutedTextColor = darkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary';
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -101,7 +106,7 @@ const SignIn = ({ open, onClose }) => {
             variant="h5" 
             sx={{ 
               mb: 4, 
-              color: 'var(--secondary-color)',
+              color: 'var(--secondary-color) !important',
               fontWeight: 600,
               textAlign: 'center' 
             }}
@@ -129,6 +134,34 @@ const SignIn = ({ open, onClose }) => {
                 onChange={handleChange}
                 required
                 autoFocus
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
+                }}
               />
 
               <TextField
@@ -150,6 +183,34 @@ const SignIn = ({ open, onClose }) => {
                       </IconButton>
                     </InputAdornment>
                   ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: textColor,
+                    '& fieldset': {
+                      borderColor: darkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'var(--accent-color)',
+                    },
+                    '& input:-webkit-autofill': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                    '& input:-webkit-autofill:focus': {
+                      '-webkit-box-shadow': darkMode ? '0 0 0 100px #333333 inset' : '0 0 0 100px #ffffff inset',
+                      '-webkit-text-fill-color': darkMode ? '#ffffff' : '#000000',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: mutedTextColor,
+                  },
+                  '& .MuiIconButton-root': {
+                    color: mutedTextColor,
+                  },
                 }}
               />
 
