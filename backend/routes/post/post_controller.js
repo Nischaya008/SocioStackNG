@@ -100,12 +100,14 @@ export const like_unlike_post=async(req,res)=>{
             //Like
             await Post.findByIdAndUpdate(id,{$push:{likes:userid}});
             await User.updateOne({_id:userid},{$push:{likedPosts:id}});
-            const newNotification=new Notification({
-                from:userid,
-                to:post.user._id,
-                type:"like"
-            });
-            await newNotification.save();
+            if(post.user._id.toString() !== userid.toString()) {
+                const newNotification = new Notification({
+                    from: userid,
+                    to: post.user._id,
+                    type: "like"
+                });
+                await newNotification.save();
+            }
             res.status(200).json({message:"Liked successfully"});
         }
     }catch(error){
