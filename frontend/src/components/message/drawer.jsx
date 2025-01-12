@@ -412,27 +412,6 @@ const MessageDrawer = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      // Get the visual viewport height
-      const vh = window.visualViewport?.height || window.innerHeight;
-      // Calculate keyboard height
-      const keyboardHeight = window.innerHeight - vh;
-      
-      // Set the CSS variable
-      document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
-    };
-
-    // Add event listeners
-    window.visualViewport?.addEventListener('resize', handleResize);
-    window.visualViewport?.addEventListener('scroll', handleResize);
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', handleResize);
-      window.visualViewport?.removeEventListener('scroll', handleResize);
-    };
-  }, []);
-
   return (
     <>
       <Fab
@@ -498,14 +477,14 @@ const MessageDrawer = () => {
         PaperProps={{
           sx: {
             width: { xs: '100%', sm: 450 },
-            height: { xs: 'calc(85vh - var(--keyboard-height, 0px))', sm: '600px' },
+            height: { xs: '85vh', sm: '600px' },
             bottom: { xs: 0, sm: 200 },
             top: { xs: 'auto', sm: '1px' },
             right: { xs: 0, sm: 32 },
             borderRadius: { xs: '16px 16px 0 0', sm: '16px' },
             bgcolor: 'var(--background-paper)',
             position: 'fixed',
-            maxHeight: { xs: 'calc(85vh - var(--keyboard-height, 0px))', sm: '95vh' },
+            maxHeight: { xs: '85vh', sm: '95vh' },
             margin: { xs: 0, sm: -2},
             marginTop: { xs: 0, sm: 10},
           }
@@ -755,10 +734,6 @@ const MessageDrawer = () => {
                       handleSend();
                     }
                   }}
-                  autoComplete="off"
-                  spellCheck="false"
-                  autoCorrect="off"
-                  autoCapitalize="off"
                   InputProps={{
                     endAdornment: (
                       <IconButton 
@@ -774,7 +749,6 @@ const MessageDrawer = () => {
                       '& fieldset': { border: 'none' },
                       '& textarea': { 
                         color: 'var(--text-color)',
-                        padding: '2px 4px',
                         '&::placeholder': {
                           color: 'var(--muted-text-color)',
                           opacity: 1
