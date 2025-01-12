@@ -5,6 +5,11 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import axios from 'axios';
 
+// Add this before your app initialization
+const consoleError = console.error;
+console.error = (...args) => {
+  if (!/ResizeObserver/.test(args[0])) consoleError(...args);
+};
 
 // Configure axios to include credentials in requests
 axios.defaults.baseURL = process.env.NODE_ENV === 'production' 
