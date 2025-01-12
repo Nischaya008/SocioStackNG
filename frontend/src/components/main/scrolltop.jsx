@@ -47,7 +47,7 @@ const ScrollToTop = () => {
             transform: 'scale(1.1)',
           },
           transition: 'transform 0.2s ease-in-out',
-          zIndex: 2000,
+          zIndex: 899,
           boxShadow: 3,
           display: 'flex',
           visibility: 'visible',
