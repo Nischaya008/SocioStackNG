@@ -242,25 +242,14 @@ const MessageDrawer = () => {
 
   // Auto scroll to bottom
   useEffect(() => {
-    if (activeChat && messages[activeChat._id]) {
-      // On mobile, always scroll to bottom regardless of manual scroll state
-      if (window.innerWidth < 600) {
-        setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'end'
-          });
-        }, 0);
-      } 
-      // On desktop, respect manual scroll state
-      else if (!isManuallyScrolled) {
-        setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'end'
-          });
-        }, 0);
-      }
+    if (activeChat && messages[activeChat._id] && !isManuallyScrolled) {
+      // Use setTimeout to ensure the DOM is updated before scrolling
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end'  // This ensures scrolling to the very bottom
+        });
+      }, 0);
     }
   }, [messages[activeChat?._id], activeChat, isManuallyScrolled]);
 
@@ -477,15 +466,12 @@ const MessageDrawer = () => {
     }
   }, []);
 
-  // Update the touch handler
+  // Add touch handler for the messages box
   const handleTouchStart = (e) => {
     // Only run on mobile
     if (window.innerWidth < 600) {
-      const messagesBox = e.currentTarget;
-      const isScrollable = messagesBox.scrollHeight > messagesBox.clientHeight;
-
-      // Only close keyboard if we're not scrolling and touch is outside the input area
-      if (!isScrollable && !e.target.closest('textarea')) {
+      // If keyboard is open, blur any active input to close keyboard
+      if (isKeyboardOpen) {
         document.activeElement?.blur();
       }
     }
@@ -715,10 +701,10 @@ const MessageDrawer = () => {
                 position: { xs: 'relative', sm: 'static' },
                 height: { xs: '100%', sm: 'auto' },
                 WebkitOverflowScrolling: 'touch',
-                overflowY: { xs: 'auto', sm: 'auto' },
-                '-webkit-overflow-scrolling': 'touch', // Enable smooth scrolling on iOS
-                // Prevent scroll chaining on mobile
-                overscrollBehavior: { xs: 'contain', sm: 'auto' },
+                overflowY: { 
+                  xs: isKeyboardOpen ? 'hidden' : 'auto', 
+                  sm: 'auto' 
+                },
                 '&::-webkit-scrollbar': {
                   width: '8px',
                 },
@@ -736,8 +722,8 @@ const MessageDrawer = () => {
               }} 
               onTouchStart={handleTouchStart}
               onScroll={(e) => {
-                // Only track manual scrolling on desktop
-                if (window.innerWidth >= 600) {
+                // Only run scroll handler on desktop or when keyboard is closed on mobile
+                if (window.innerWidth >= 600 || !isKeyboardOpen) {
                   const element = e.target;
                   const isScrolledToBottom = 
                     Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
