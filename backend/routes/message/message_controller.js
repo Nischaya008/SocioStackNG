@@ -132,46 +132,55 @@ export const getPotentialChats = async (req, res) => {
                 { receiver: req.user._id }
             ],
             deleted: false
-        }).sort({ createdAt: -1 }); // Sort messages by newest first
+        }).sort({ createdAt: -1 });
 
         // Get unique user IDs from messages (excluding current user)
         const chatUserIds = [...new Set(messages.flatMap(msg => 
             [msg.sender.toString(), msg.receiver.toString()]
         ))].filter(id => id !== req.user._id.toString());
 
-        // Create a map of user IDs to their last message timestamp
-        const lastMessageMap = new Map();
-        messages.forEach(msg => {
-            const otherId = msg.sender.toString() === req.user._id.toString() 
-                ? msg.receiver.toString() 
-                : msg.sender.toString();
-            
-            if (!lastMessageMap.has(otherId)) {
-                lastMessageMap.set(otherId, msg.createdAt);
-            }
-        });
-
-        // Get user details and unread counts for these IDs
+        // Get user details and filter out deleted users
         const chatUsers = await Promise.all(chatUserIds.map(async (userId) => {
             const user = await User.findById(userId, 'username profileIMG name');
+            if (!user) {
+                // If user is deleted, mark their messages as deleted
+                await Message.updateMany(
+                    {
+                        $or: [
+                            { sender: userId },
+                            { receiver: userId }
+                        ]
+                    },
+                    { deleted: true }
+                );
+                return null;
+            }
+
             const unreadCount = await Message.countDocuments({
                 sender: userId,
                 receiver: req.user._id,
                 read: false,
                 deleted: false
             });
+
             return {
                 ...user.toObject(),
                 hasUnread: unreadCount > 0,
-                lastMessageAt: lastMessageMap.get(userId)
+                lastMessageAt: messages.find(msg => 
+                    msg.sender.toString() === userId || 
+                    msg.receiver.toString() === userId
+                )?.createdAt
             };
         }));
 
-        // Sort users by their last message timestamp
-        chatUsers.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+        // Filter out null values (deleted users) and sort by last message
+        const validChatUsers = chatUsers
+            .filter(user => user !== null)
+            .sort((a, b) => b.lastMessageAt - a.lastMessageAt);
         
-        res.json(chatUsers);
+        res.json(validChatUsers);
     } catch (error) {
+        console.error('Error in getPotentialChats:', error);
         res.status(500).json({ message: 'Error fetching potential chat users' });
     }
 };
