@@ -10,12 +10,52 @@ import {v2 as cloudinary} from "cloudinary";
 import cors from "cors";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import { Server } from 'socket.io';
+import { setupSocket } from './lib/socket.js';
+import messageRouter from './routes/message/message_route.js';
+import jwt from 'jsonwebtoken';
+
+dotenv.config();
+await connectDB();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-dotenv.config();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: [
+            'https://sociostackng.vercel.app',
+            'http://localhost:3000'
+        ],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization']
+    },
+    path: '/socket.io/',
+    transports: ['websocket', 'polling']
+});
+
+// Setup Socket.IO with authentication middleware
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+        return next(new Error('Authentication error: No token'));
+    }
+    
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        socket.userId = decoded.userId;
+        next();
+    } catch (err) {
+        console.error('Socket auth error:', err);
+        next(new Error('Authentication error: Invalid token'));
+    }
+});
+
+setupSocket(io);
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -34,6 +74,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.set('io', io);
 
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
@@ -44,6 +85,7 @@ app.use("/api/auth", auth_router);
 app.use("/api/user", user_router);
 app.use("/api/post", post_router);
 app.use("/api/notif", notif_router);
+app.use('/api/message', messageRouter);
 
 // Serve static files from the React frontend app
 if (process.env.NODE_ENV === 'production') {
@@ -56,19 +98,10 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
+
 const PORT = process.env.PORT || 5000;
-
-const startServer = async () => {
-    try {
-        await connectDB();
-        app.listen(PORT, () => {
-            console.log(`Server Started at ${PORT}`);
-        });
-    } catch (error) {
-        console.error("Failed to start server:", error);
-    }
-};
-
-startServer();
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
 export default app;
