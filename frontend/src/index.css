@@ -10,6 +10,9 @@
   --muted-text-color: #666666;
   --border-color: #e5e7eb;
   --background-paper: #ffffff;
+  --menu-hover: rgba(0, 0, 0, 0.04);
+  --menu-text: #333333;
+  --menu-secondary-text: #666666;
 }
 
 [data-theme='dark'] {
@@ -20,6 +23,9 @@
   --muted-text-color: #9CA3AF;
   --border-color: #333333;
   --background-paper: #1E1E1E;
+  --menu-hover: rgba(255, 255, 255, 0.08);
+  --menu-text: #ffffff;
+  --menu-secondary-text: rgba(255, 255, 255, 0.7);
 }
 
 body {
