@@ -412,24 +412,6 @@ const MessageDrawer = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 600) { // Assuming mobile width
-        const drawer = document.querySelector('.MuiDrawer-paper');
-        if (drawer) {
-          drawer.style.height = `${window.innerHeight}px`;
-        }
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initial call
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   return (
     <>
       <Fab
@@ -495,7 +477,7 @@ const MessageDrawer = () => {
         PaperProps={{
           sx: {
             width: { xs: '100%', sm: 450 },
-            height: { xs: '100vh', sm: '600px' },
+            height: { xs: '85vh', sm: '600px' },
             bottom: { xs: 0, sm: 200 },
             top: { xs: 'auto', sm: '1px' },
             right: { xs: 0, sm: 32 },
@@ -505,15 +487,15 @@ const MessageDrawer = () => {
             maxHeight: { xs: '85vh', sm: '95vh' },
             margin: { xs: 0, sm: -2},
             marginTop: { xs: 0, sm: 10},
-            overflow: 'hidden',
+            overflowY: { xs: 'hidden', sm: 'auto' },
           }
         }}
         ModalProps={{
             keepMounted: true,
-            disableScrollLock: true, // This prevents the main page from being locked
+            disableScrollLock: { xs: false, sm: true },
             BackdropProps: {
               sx: {
-                backgroundColor: 'transparent' // This removes the backdrop blur
+                backgroundColor: 'transparent'
               }
             }
           }}
@@ -521,8 +503,7 @@ const MessageDrawer = () => {
         <Box sx={{ 
           display: 'flex', 
           flexDirection: 'column',
-          height: '100%',
-          overflow: 'hidden'
+          height: '100%'
         }}>
           {/* Header */}
           <Box sx={{ 
@@ -645,11 +626,12 @@ const MessageDrawer = () => {
               {/* Messages */}
               <Box sx={{ 
                 flex: 1, 
-                overflowY: 'auto',
+                overflow: 'auto',
                 p: 1.5,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1,
+                WebkitOverflowScrolling: { xs: 'touch', sm: 'auto' },
                 '&::-webkit-scrollbar': {
                   width: '8px',
                 },
