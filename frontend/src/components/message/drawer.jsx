@@ -36,6 +36,11 @@ import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 
+// Add these constants after the imports
+const SENT_SOUND_URL = 'https://cdn.pixabay.com/download/audio/2024/11/27/audio_c91ef5ee90.mp3?filename=notification-2-269292.mp3';
+const RECEIVED_SOUND_URL = 'https://cdn.pixabay.com/download/audio/2024/08/02/audio_3a4d7c617d.mp3?filename=notification-beep-229154.mp3';
+
+
 const MessageDrawer = () => {
   const { user } = useAuth();
   const { darkMode } = useTheme();
@@ -51,6 +56,10 @@ const MessageDrawer = () => {
   const messagesEndRef = useRef(null);
   const [hasUnread, setHasUnread] = useState(false);
   const [isManuallyScrolled, setIsManuallyScrolled] = useState(false);
+  const sentAudioRef = useRef(new Audio(SENT_SOUND_URL));
+  const receivedAudioRef = useRef(new Audio(RECEIVED_SOUND_URL));
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [visualViewport, setVisualViewport] = useState(window.visualViewport?.height || window.innerHeight);
 
   // Connect to socket when component mounts
   useEffect(() => {
@@ -100,6 +109,11 @@ const MessageDrawer = () => {
           
           // Check if message already exists
           if (!currentMessages.some(m => m._id === message._id)) {
+            // Play received sound if the chat is active and message is from other user
+            if (activeChat?._id === message.sender._id && message.sender._id !== user._id) {
+              receivedAudioRef.current?.play().catch(() => {});
+            }
+
             return {
               ...prev,
               [chatId]: [...currentMessages, message]
@@ -147,7 +161,7 @@ const MessageDrawer = () => {
         }
       };
     }
-  }, [user]);
+  }, [user, activeChat]);
 
   // Fetch initial data
   useEffect(() => {
@@ -229,9 +243,15 @@ const MessageDrawer = () => {
   // Auto scroll to bottom
   useEffect(() => {
     if (activeChat && messages[activeChat._id] && !isManuallyScrolled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      // Use setTimeout to ensure the DOM is updated before scrolling
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end'  // This ensures scrolling to the very bottom
+        });
+      }, 0);
     }
-  }, [messages, activeChat]);
+  }, [messages[activeChat?._id], activeChat, isManuallyScrolled]);
 
   // Add this effect to reset manual scroll when changing chats
   useEffect(() => {
@@ -252,6 +272,11 @@ const MessageDrawer = () => {
         content: messageContent,
         receiverId: activeChat._id
       });
+
+      // Play sent sound
+      if (activeChat && sentAudioRef.current) {
+        sentAudioRef.current.play().catch(() => {});
+      }
 
       // Optimistically update UI
       const newMessageObj = response.data;
@@ -284,7 +309,7 @@ const MessageDrawer = () => {
 
   useEffect(() => {
     const checkUnreadMessages = async () => {
-      if (user && !open) {  // Only check when drawer is closed
+      if (user) {  // Remove the !open condition to check always
         try {
           const response = await axios.get('/api/message/unread');
           setHasUnread(response.data.hasUnread);
@@ -300,10 +325,10 @@ const MessageDrawer = () => {
     // Set up interval to check every 5 seconds
     const interval = setInterval(checkUnreadMessages, 5000);
 
-    // Also check when receiving new messages
+    // Handle new messages
     if (socket) {
       socket.on('receive_message', (message) => {
-        if (!open || (activeChat?._id !== message.sender._id)) {
+        if (activeChat?._id !== message.sender._id) {
           setHasUnread(true);
         }
       });
@@ -315,7 +340,30 @@ const MessageDrawer = () => {
         socket.off('receive_message');
       }
     };
-  }, [user, open, socket, activeChat]);
+  }, [user, socket, activeChat]);
+
+  // Add a separate useEffect for handling read status when opening a chat
+  useEffect(() => {
+    if (activeChat) {
+      // Update recent chats to mark this chat as read
+      setRecentChats(prev => 
+        prev.map(chat => 
+          chat._id === activeChat._id 
+            ? { ...chat, hasUnread: false }
+            : chat
+        )
+      );
+
+      // Emit socket event to mark messages as read
+      socket?.emit('mark_read', { senderId: activeChat._id });
+
+      // Check if there are any other unread chats
+      const hasOtherUnread = recentChats.some(
+        chat => chat._id !== activeChat._id && chat.hasUnread
+      );
+      setHasUnread(hasOtherUnread);
+    }
+  }, [activeChat, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -344,6 +392,88 @@ const MessageDrawer = () => {
     } catch (error) {
       console.error('Delete message error:', error);
       toast.error('Failed to delete message');
+    }
+  };
+
+  useEffect(() => {
+    // Initialize audio elements
+    sentAudioRef.current = new Audio(SENT_SOUND_URL);
+    receivedAudioRef.current = new Audio(RECEIVED_SOUND_URL);
+    
+    // Set volume
+    sentAudioRef.current.volume = 0.5;
+    receivedAudioRef.current.volume = 0.5;
+    
+    // Preload audio
+    sentAudioRef.current.load();
+    receivedAudioRef.current.load();
+    
+    return () => {
+      sentAudioRef.current = null;
+      receivedAudioRef.current = null;
+    };
+  }, []);
+
+  // Add this useEffect near your other effects
+  useEffect(() => {
+    // Only run on mobile devices
+    if (window.innerWidth < 600) {  // MUI's sm breakpoint is 600px
+      if (open) {
+        // Save current scroll position and lock body
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.top = `-${scrollY}px`;
+      } else {
+        // Restore scroll position and unlock body
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
+    }
+
+    return () => {
+      // Cleanup: ensure body styles are reset when component unmounts
+      if (window.innerWidth < 600) {
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+      }
+    };
+  }, [open]);
+
+  // Add this useEffect to detect keyboard
+  useEffect(() => {
+    // Only run on mobile
+    if (window.innerWidth < 600) {
+      const handleResize = () => {
+        const newViewport = window.visualViewport?.height || window.innerHeight;
+        // If viewport height significantly decreases, keyboard is likely open
+        const keyboardIsOpen = newViewport < (window.innerHeight * 0.8);
+        setIsKeyboardOpen(keyboardIsOpen);
+        setVisualViewport(newViewport);
+      };
+
+      window.visualViewport?.addEventListener('resize', handleResize);
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, []);
+
+  // Add touch handler for the messages box
+  const handleTouchStart = (e) => {
+    // Only run on mobile
+    if (window.innerWidth < 600) {
+      // If keyboard is open, blur any active input to close keyboard
+      if (isKeyboardOpen) {
+        document.activeElement?.blur();
+      }
     }
   };
 
@@ -422,14 +552,17 @@ const MessageDrawer = () => {
             maxHeight: { xs: '85vh', sm: '95vh' },
             margin: { xs: 0, sm: -2},
             marginTop: { xs: 0, sm: 10},
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }
         }}
         ModalProps={{
-            keepMounted: true,
-            disableScrollLock: true, // This prevents the main page from being locked
+            keepMounted: { xs: false, sm: true },
+            disableScrollLock: { xs: false, sm: true },
             BackdropProps: {
               sx: {
-                backgroundColor: 'transparent' // This removes the backdrop blur
+                backgroundColor: 'transparent'
               }
             }
           }}
@@ -565,6 +698,13 @@ const MessageDrawer = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1,
+                position: { xs: 'relative', sm: 'static' },
+                height: { xs: '100%', sm: 'auto' },
+                WebkitOverflowScrolling: 'touch',
+                overflowY: { 
+                  xs: isKeyboardOpen ? 'hidden' : 'auto', 
+                  sm: 'auto' 
+                },
                 '&::-webkit-scrollbar': {
                   width: '8px',
                 },
@@ -579,12 +719,16 @@ const MessageDrawer = () => {
                     background: 'var(--secondary-color)',
                   },
                 },
-              }}
+              }} 
+              onTouchStart={handleTouchStart}
               onScroll={(e) => {
-                const element = e.target;
-                const isScrolledToBottom = 
-                  Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
-                setIsManuallyScrolled(!isScrolledToBottom);
+                // Only run scroll handler on desktop or when keyboard is closed on mobile
+                if (window.innerWidth >= 600 || !isKeyboardOpen) {
+                  const element = e.target;
+                  const isScrolledToBottom = 
+                    Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
+                  setIsManuallyScrolled(!isScrolledToBottom);
+                }
               }}>
                 {messages[activeChat._id]?.map((message, index) => (
                   <Box
@@ -634,6 +778,7 @@ const MessageDrawer = () => {
                         color: message.sender._id === user._id ? '#ffffff' : 'var(--text-color)',
                         fontSize: '0.95rem',
                         lineHeight: 1.4,
+                        whiteSpace: 'pre-wrap'
                       }}>
                         {message.content}
                       </Typography>
@@ -650,18 +795,30 @@ const MessageDrawer = () => {
                     </Paper>
                   </Box>
                 ))}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} style={{ padding: '1px' }} />
               </Box>
 
               {/* Message Input */}
               <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'var(--border-color)' }}>
                 <TextField
                   fullWidth
+                  multiline
                   variant="outlined"
                   placeholder="Type a message..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  onFocus={() => {
+                    // Only run on mobile
+                    if (window.innerWidth < 600) {
+                      setIsManuallyScrolled(true); // Prevent auto-scroll when keyboard opens
+                    }
+                  }}
                   InputProps={{
                     endAdornment: (
                       <IconButton 
@@ -675,7 +832,7 @@ const MessageDrawer = () => {
                     sx: {
                       bgcolor: 'var(--primary-color)',
                       '& fieldset': { border: 'none' },
-                      '& input': { 
+                      '& textarea': { 
                         color: 'var(--text-color)',
                         '&::placeholder': {
                           color: 'var(--muted-text-color)',
