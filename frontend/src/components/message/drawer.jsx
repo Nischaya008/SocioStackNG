@@ -47,6 +47,7 @@ const MessageDrawer = () => {
   const [recentChats, setRecentChats] = useState([]);
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
+  const [hasUnread, setHasUnread] = useState(false);
 
   // Connect to socket when component mounts
   useEffect(() => {
@@ -250,12 +251,62 @@ const MessageDrawer = () => {
     }
   };
 
+  useEffect(() => {
+    const checkUnreadMessages = async () => {
+      if (user && !open) {  // Only check when drawer is closed
+        try {
+          const response = await axios.get('/api/message/unread');
+          setHasUnread(response.data.hasUnread);
+        } catch (error) {
+          console.error('Error checking unread messages:', error);
+        }
+      }
+    };
+
+    // Initial check
+    checkUnreadMessages();
+
+    // Set up interval to check every 5 seconds
+    const interval = setInterval(checkUnreadMessages, 5000);
+
+    // Also check when receiving new messages
+    if (socket) {
+      socket.on('receive_message', (message) => {
+        if (!open || (activeChat?._id !== message.sender._id)) {
+          setHasUnread(true);
+        }
+      });
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (socket) {
+        socket.off('receive_message');
+      }
+    };
+  }, [user, open, socket, activeChat]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('messages_read', () => {
+        setHasUnread(false);
+      });
+
+      return () => {
+        socket.off('messages_read');
+      };
+    }
+  }, [socket]);
+
   return (
     <>
       <Fab
         color="primary"
         aria-label="messages"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+          setHasUnread(false);
+        }}
         sx={{
           position: 'fixed',
           bottom: { xs: 145, sm: 24, md: 160 },
@@ -270,12 +321,35 @@ const MessageDrawer = () => {
         }}
       >
         <Badge 
-          badgeContent={4} 
+          variant="dot"
           color="error"
+          invisible={!hasUnread}
           sx={{
             '& .MuiBadge-badge': {
-              bgcolor: '#ef4444',
-            }
+              backgroundColor: '#ef4444',
+              boxShadow: '0 0 0 2px var(--background-paper)',
+              '&::after': {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                animation: 'ripple 1.2s infinite ease-in-out',
+                border: '1px solid currentColor',
+                content: '""',
+              },
+            },
+            '@keyframes ripple': {
+              '0%': {
+                transform: 'scale(.8)',
+                opacity: 1,
+              },
+              '100%': {
+                transform: 'scale(2.4)',
+                opacity: 0,
+              },
+            },
           }}
         >
           <MessageIcon />
