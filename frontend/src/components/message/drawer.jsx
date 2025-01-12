@@ -412,6 +412,36 @@ const MessageDrawer = () => {
     };
   }, []);
 
+  // Add this useEffect near your other effects
+  useEffect(() => {
+    // Only run on mobile devices
+    if (window.innerWidth < 600) {  // MUI's sm breakpoint is 600px
+      if (open) {
+        // Save current scroll position and lock body
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.top = `-${scrollY}px`;
+      } else {
+        // Restore scroll position and unlock body
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
+    }
+
+    return () => {
+      // Cleanup: ensure body styles are reset when component unmounts
+      if (window.innerWidth < 600) {
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.top = '';
+      }
+    };
+  }, [open]);
+
   return (
     <>
       <Fab
@@ -487,7 +517,9 @@ const MessageDrawer = () => {
             maxHeight: { xs: '85vh', sm: '95vh' },
             margin: { xs: 0, sm: -2},
             marginTop: { xs: 0, sm: 10},
-            overflowY: { xs: 'hidden', sm: 'auto' },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }
         }}
         ModalProps={{
@@ -631,7 +663,9 @@ const MessageDrawer = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1,
-                WebkitOverflowScrolling: { xs: 'touch', sm: 'auto' },
+                position: { xs: 'relative', sm: 'static' },
+                height: { xs: '100%', sm: 'auto' },
+                WebkitOverflowScrolling: 'touch',
                 '&::-webkit-scrollbar': {
                   width: '8px',
                 },
