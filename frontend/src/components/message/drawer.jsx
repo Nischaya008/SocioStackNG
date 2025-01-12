@@ -491,7 +491,7 @@ const MessageDrawer = () => {
           }
         }}
         ModalProps={{
-            keepMounted: true,
+            keepMounted: { xs: false, sm: true },
             disableScrollLock: { xs: false, sm: true },
             BackdropProps: {
               sx: {
