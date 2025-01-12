@@ -1,6 +1,6 @@
 # SocioStackNG
 
-![SocioStackNG Banner](https://github.com/Nischaya008/Image_hosting/blob/main/Screenshot%202025-01-12%20185506.png)
+![SocioStackNG Banner](https://github.com/Nischaya008/Image_hosting/blob/main/SSN_Banner.png)
 
 ## 🚀 Overview
 SocioStackNG is a modern full-stack social media platform that combines sleek design, real-time interactions, and scalable architecture. Built with **React**, **Node.js**, and **MongoDB**, this project is perfect for learning, collaboration, or serving as a foundation for your next social platform.
