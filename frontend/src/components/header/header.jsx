@@ -25,7 +25,8 @@ import {
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   Person as PersonIcon,
-  DarkMode as DarkModeIcon
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon
 } from '@mui/icons-material';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -423,7 +424,21 @@ const Header = () => {
                   sx: {
                     mt: 1.5,
                     minWidth: 250,
-                    boxShadow: '0px 4px 20px rgba(0,0,0,0.1)'
+                    bgcolor: 'var(--background-paper)',
+                    color: 'var(--menu-text)',
+                    boxShadow: '0px 4px 20px rgba(0,0,0,0.1)',
+                    '& .MuiMenuItem-root': {
+                      color: 'var(--menu-text)',
+                      '&:hover': {
+                        bgcolor: 'var(--menu-hover)',
+                      },
+                    },
+                    '& .MuiListItemIcon-root': {
+                      color: 'var(--menu-text)',
+                    },
+                    '& .MuiDivider-root': {
+                      borderColor: 'var(--border-color)',
+                    },
                   }
                 }}
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -431,10 +446,15 @@ const Header = () => {
               >
                 {/* User Info Section */}
                 <Box sx={{ px: 2, py: 1.5 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  <Typography variant="subtitle1" sx={{ 
+                    fontWeight: 600,
+                    color: 'var(--menu-text)'
+                  }}>
                     {user.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ 
+                    color: 'var(--menu-secondary-text)'
+                  }}>
                     @{user.username}
                   </Typography>
                 </Box>
@@ -455,23 +475,52 @@ const Header = () => {
                 </MenuItem>*/}
 
                 {/* Theme Switch */}
-                <MenuItem>
+                <MenuItem sx={{
+                  color: 'var(--menu-text)',
+                  '&:hover': {
+                    bgcolor: 'var(--menu-hover)',
+                  },
+                }}>
                   <ListItemIcon>
-                    <DarkModeIcon fontSize="small" />
+                    <Box sx={{ position: 'relative', width: 24, height: 24 }}>
+                      <DarkModeIcon
+                        fontSize="small"
+                        sx={{
+                          position: 'absolute',
+                          transform: darkMode ? 'rotate(0deg) scale(1)' : 'rotate(90deg) scale(0)',
+                          transition: 'transform 0.3s ease-in-out',
+                          color: 'var(--menu-text)',
+                        }}
+                      />
+                      <LightModeIcon
+                        fontSize="small"
+                        sx={{
+                          position: 'absolute',
+                          transform: darkMode ? 'rotate(-90deg) scale(0)' : 'rotate(0deg) scale(1)',
+                          transition: 'transform 0.3s ease-in-out',
+                          color: 'var(--menu-text)',
+                        }}
+                      />
+                    </Box>
                   </ListItemIcon>
                   <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%' }}>
-                    Theme
+                    <Typography sx={{ color: 'var(--menu-text)' }}>
+                      {darkMode ? 'Dark' : 'Light'} Mode
+                    </Typography>
                     <Switch
                       size="small"
                       checked={darkMode}
                       onChange={handleThemeChange}
                       sx={{ 
                         ml: 'auto',
+                        '& .MuiSwitch-switchBase': {
+                          color: darkMode ? 'var(--accent-color)' : undefined,
+                        },
                         '& .MuiSwitch-switchBase.Mui-checked': {
                           color: 'var(--accent-color)',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                          backgroundColor: 'var(--accent-color)',
+                          backgroundColor: 'var(--accent-color) !important',
                         },
                       }}
                     />
