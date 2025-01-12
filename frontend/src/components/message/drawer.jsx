@@ -58,6 +58,8 @@ const MessageDrawer = () => {
   const [isManuallyScrolled, setIsManuallyScrolled] = useState(false);
   const sentAudioRef = useRef(new Audio(SENT_SOUND_URL));
   const receivedAudioRef = useRef(new Audio(RECEIVED_SOUND_URL));
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [visualViewport, setVisualViewport] = useState(window.visualViewport?.height || window.innerHeight);
 
   // Connect to socket when component mounts
   useEffect(() => {
@@ -442,6 +444,39 @@ const MessageDrawer = () => {
     };
   }, [open]);
 
+  // Add this useEffect to detect keyboard
+  useEffect(() => {
+    // Only run on mobile
+    if (window.innerWidth < 600) {
+      const handleResize = () => {
+        const newViewport = window.visualViewport?.height || window.innerHeight;
+        // If viewport height significantly decreases, keyboard is likely open
+        const keyboardIsOpen = newViewport < (window.innerHeight * 0.8);
+        setIsKeyboardOpen(keyboardIsOpen);
+        setVisualViewport(newViewport);
+      };
+
+      window.visualViewport?.addEventListener('resize', handleResize);
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleResize);
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, []);
+
+  // Add touch handler for the messages box
+  const handleTouchStart = (e) => {
+    // Only run on mobile
+    if (window.innerWidth < 600) {
+      // If keyboard is open, blur any active input to close keyboard
+      if (isKeyboardOpen) {
+        document.activeElement?.blur();
+      }
+    }
+  };
+
   return (
     <>
       <Fab
@@ -666,6 +701,10 @@ const MessageDrawer = () => {
                 position: { xs: 'relative', sm: 'static' },
                 height: { xs: '100%', sm: 'auto' },
                 WebkitOverflowScrolling: 'touch',
+                overflowY: { 
+                  xs: isKeyboardOpen ? 'hidden' : 'auto', 
+                  sm: 'auto' 
+                },
                 '&::-webkit-scrollbar': {
                   width: '8px',
                 },
@@ -680,12 +719,16 @@ const MessageDrawer = () => {
                     background: 'var(--secondary-color)',
                   },
                 },
-              }}
+              }} 
+              onTouchStart={handleTouchStart}
               onScroll={(e) => {
-                const element = e.target;
-                const isScrolledToBottom = 
-                  Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
-                setIsManuallyScrolled(!isScrolledToBottom);
+                // Only run scroll handler on desktop or when keyboard is closed on mobile
+                if (window.innerWidth >= 600 || !isKeyboardOpen) {
+                  const element = e.target;
+                  const isScrolledToBottom = 
+                    Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
+                  setIsManuallyScrolled(!isScrolledToBottom);
+                }
               }}>
                 {messages[activeChat._id]?.map((message, index) => (
                   <Box
@@ -768,6 +811,12 @@ const MessageDrawer = () => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       handleSend();
+                    }
+                  }}
+                  onFocus={() => {
+                    // Only run on mobile
+                    if (window.innerWidth < 600) {
+                      setIsManuallyScrolled(true); // Prevent auto-scroll when keyboard opens
                     }
                   }}
                   InputProps={{
