@@ -734,6 +734,10 @@ const MessageDrawer = () => {
                       handleSend();
                     }
                   }}
+                  autoComplete="off"
+                  spellCheck="false"
+                  autoCorrect="off"
+                  autoCapitalize="off"
                   InputProps={{
                     endAdornment: (
                       <IconButton 
@@ -749,6 +753,7 @@ const MessageDrawer = () => {
                       '& fieldset': { border: 'none' },
                       '& textarea': { 
                         color: 'var(--text-color)',
+                        padding: '2px 4px',
                         '&::placeholder': {
                           color: 'var(--muted-text-color)',
                           opacity: 1
