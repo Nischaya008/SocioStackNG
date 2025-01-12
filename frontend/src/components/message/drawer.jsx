@@ -243,15 +243,9 @@ const MessageDrawer = () => {
   // Auto scroll to bottom
   useEffect(() => {
     if (activeChat && messages[activeChat._id] && !isManuallyScrolled) {
-      // Use setTimeout to ensure the DOM is updated before scrolling
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'end'  // This ensures scrolling to the very bottom
-        });
-      }, 0);
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages[activeChat?._id], activeChat, isManuallyScrolled]);
+  }, [messages, activeChat]);
 
   // Add this effect to reset manual scroll when changing chats
   useEffect(() => {
@@ -722,13 +716,10 @@ const MessageDrawer = () => {
               }} 
               onTouchStart={handleTouchStart}
               onScroll={(e) => {
-                // Only run scroll handler on desktop or when keyboard is closed on mobile
-                if (window.innerWidth >= 600 || !isKeyboardOpen) {
-                  const element = e.target;
-                  const isScrolledToBottom = 
-                    Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
-                  setIsManuallyScrolled(!isScrolledToBottom);
-                }
+                const element = e.target;
+                const isScrolledToBottom = 
+                  Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
+                setIsManuallyScrolled(!isScrolledToBottom);
               }}>
                 {messages[activeChat._id]?.map((message, index) => (
                   <Box
