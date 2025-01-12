@@ -34,6 +34,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { alpha } from '@mui/material/styles';
 
 const MessageDrawer = () => {
   const { user } = useAuth();
@@ -105,6 +106,29 @@ const MessageDrawer = () => {
             };
           }
           return prev;
+        });
+
+        // Update recent chats order
+        setRecentChats(prev => {
+          const chatId = message.sender._id === user._id ? 
+            message.receiver._id : message.sender._id;
+          
+          // Find the chat user
+          const chatUser = prev.find(u => u._id === chatId);
+          if (!chatUser) return prev;
+
+          // Remove the user from the current position
+          const otherUsers = prev.filter(u => u._id !== chatId);
+          
+          // Add the user back at the beginning with updated unread status
+          return [
+            {
+              ...chatUser,
+              hasUnread: message.sender._id !== user._id,
+              lastMessageAt: new Date().toISOString()
+            },
+            ...otherUsers
+          ];
         });
       };
 
@@ -537,10 +561,10 @@ const MessageDrawer = () => {
               <Box sx={{ 
                 flex: 1, 
                 overflow: 'auto',
-                p: 2,
+                p: 1.5,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
+                gap: 1,
                 '&::-webkit-scrollbar': {
                   width: '8px',
                 },
@@ -567,7 +591,7 @@ const MessageDrawer = () => {
                     key={message._id}
                     sx={{
                       alignSelf: message.sender._id === user._id ? 'flex-end' : 'flex-start',
-                      maxWidth: '80%',
+                      maxWidth: '75%',
                       position: 'relative',
                       '&:hover .delete-icon': {
                         opacity: 1,
@@ -577,11 +601,12 @@ const MessageDrawer = () => {
                     <Paper
                       elevation={0}
                       sx={{
-                        p: 2,
+                        py: 1.25,
+                        px: 1.75,
                         bgcolor: message.sender._id === user._id 
                           ? 'var(--accent-color)' 
                           : 'var(--primary-color)',
-                        borderRadius: 2,
+                        borderRadius: 1.5,
                         position: 'relative',
                       }}
                     >
@@ -606,7 +631,9 @@ const MessageDrawer = () => {
                         </IconButton>
                       )}
                       <Typography sx={{ 
-                        color: message.sender._id === user._id ? '#ffffff' : 'var(--text-color)'
+                        color: message.sender._id === user._id ? '#ffffff' : 'var(--text-color)',
+                        fontSize: '0.95rem',
+                        lineHeight: 1.4,
                       }}>
                         {message.content}
                       </Typography>
@@ -615,7 +642,8 @@ const MessageDrawer = () => {
                           ? 'rgba(255,255,255,0.7)' 
                           : 'var(--muted-text-color)',
                         display: 'block',
-                        mt: 0.5
+                        mt: 0.25,
+                        fontSize: '0.75rem',
                       }}>
                         {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
                       </Typography>
@@ -721,9 +749,13 @@ const MessageDrawer = () => {
                     sx={{
                       borderRadius: 2,
                       mb: 1,
+                      bgcolor: user.hasUnread ? alpha('#F97316', 0.1) : 'transparent',
                       '&:hover': {
-                        bgcolor: 'var(--primary-color)',
+                        bgcolor: user.hasUnread 
+                          ? alpha('#F97316', 0.15)
+                          : 'var(--primary-color)',
                       },
+                      position: 'relative',
                     }}
                   >
                     <ListItemAvatar>
@@ -735,12 +767,44 @@ const MessageDrawer = () => {
                       primary={user.username}
                       secondary={user.name}
                       primaryTypographyProps={{
-                        sx: { color: 'var(--text-color)' }
+                        sx: { 
+                          color: 'var(--text-color)',
+                          fontWeight: user.hasUnread ? 600 : 400,
+                        }
                       }}
                       secondaryTypographyProps={{
                         sx: { color: 'var(--muted-text-color)' }
                       }}
                     />
+                    {user.hasUnread && (
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          backgroundColor: '#ef4444',
+                          borderRadius: '50%',
+                          position: 'absolute',
+                          right: 12,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          animation: 'pulse 1.5s infinite',
+                          '@keyframes pulse': {
+                            '0%': {
+                              transform: 'translateY(-50%) scale(0.95)',
+                              boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.7)',
+                            },
+                            '70%': {
+                              transform: 'translateY(-50%) scale(1)',
+                              boxShadow: '0 0 0 6px rgba(239, 68, 68, 0)',
+                            },
+                            '100%': {
+                              transform: 'translateY(-50%) scale(0.95)',
+                              boxShadow: '0 0 0 0 rgba(239, 68, 68, 0)',
+                            },
+                          },
+                        }}
+                      />
+                    )}
                   </ListItem>
                 ))
               )}
