@@ -25,6 +25,7 @@ import {
   Close as CloseIcon,
   PersonAdd as PersonAddIcon,
   Chat as ChatIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../../contexts/auth_context';
@@ -48,6 +49,7 @@ const MessageDrawer = () => {
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
   const [hasUnread, setHasUnread] = useState(false);
+  const [isManuallyScrolled, setIsManuallyScrolled] = useState(false);
 
   // Connect to socket when component mounts
   useEffect(() => {
@@ -202,10 +204,15 @@ const MessageDrawer = () => {
 
   // Auto scroll to bottom
   useEffect(() => {
-    if (activeChat && messages[activeChat._id]) {
+    if (activeChat && messages[activeChat._id] && !isManuallyScrolled) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, activeChat]);
+
+  // Add this effect to reset manual scroll when changing chats
+  useEffect(() => {
+    setIsManuallyScrolled(false);
+  }, [activeChat]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || !activeChat) {
@@ -297,6 +304,24 @@ const MessageDrawer = () => {
       };
     }
   }, [socket]);
+
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm('Are you sure you want to delete this message?')) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/message/${messageId}`);
+      setMessages(prev => ({
+        ...prev,
+        [activeChat._id]: prev[activeChat._id].filter(msg => msg._id !== messageId)
+      }));
+      toast.success('Message deleted');
+    } catch (error) {
+      console.error('Delete message error:', error);
+      toast.error('Failed to delete message');
+    }
+  };
 
   return (
     <>
@@ -530,13 +555,23 @@ const MessageDrawer = () => {
                     background: 'var(--secondary-color)',
                   },
                 },
+              }}
+              onScroll={(e) => {
+                const element = e.target;
+                const isScrolledToBottom = 
+                  Math.abs(element.scrollHeight - element.scrollTop - element.clientHeight) < 50;
+                setIsManuallyScrolled(!isScrolledToBottom);
               }}>
                 {messages[activeChat._id]?.map((message, index) => (
                   <Box
                     key={message._id}
                     sx={{
                       alignSelf: message.sender._id === user._id ? 'flex-end' : 'flex-start',
-                      maxWidth: '80%'
+                      maxWidth: '80%',
+                      position: 'relative',
+                      '&:hover .delete-icon': {
+                        opacity: 1,
+                      }
                     }}
                   >
                     <Paper
@@ -547,8 +582,29 @@ const MessageDrawer = () => {
                           ? 'var(--accent-color)' 
                           : 'var(--primary-color)',
                         borderRadius: 2,
+                        position: 'relative',
                       }}
                     >
+                      {message.sender._id === user._id && (
+                        <IconButton
+                          size="small"
+                          className="delete-icon"
+                          onClick={() => handleDeleteMessage(message._id)}
+                          sx={{
+                            position: 'absolute',
+                            top: -10,
+                            right: -10,
+                            opacity: 0,
+                            transition: 'opacity 0.2s ease',
+                            bgcolor: 'var(--background-paper)',
+                            '&:hover': {
+                              bgcolor: 'var(--primary-color)',
+                            },
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" sx={{ color: 'error.main' }} />
+                        </IconButton>
+                      )}
                       <Typography sx={{ 
                         color: message.sender._id === user._id ? '#ffffff' : 'var(--text-color)'
                       }}>
