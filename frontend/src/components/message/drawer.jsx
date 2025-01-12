@@ -229,7 +229,10 @@ const MessageDrawer = () => {
   // Auto scroll to bottom
   useEffect(() => {
     if (activeChat && messages[activeChat._id] && !isManuallyScrolled) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'  // This ensures scrolling to the very bottom
+      });
     }
   }, [messages, activeChat]);
 
@@ -284,7 +287,7 @@ const MessageDrawer = () => {
 
   useEffect(() => {
     const checkUnreadMessages = async () => {
-      if (user && !open) {  // Only check when drawer is closed
+      if (user) {  // Remove the !open condition to check always
         try {
           const response = await axios.get('/api/message/unread');
           setHasUnread(response.data.hasUnread);
@@ -300,10 +303,10 @@ const MessageDrawer = () => {
     // Set up interval to check every 5 seconds
     const interval = setInterval(checkUnreadMessages, 5000);
 
-    // Also check when receiving new messages
+    // Handle new messages
     if (socket) {
       socket.on('receive_message', (message) => {
-        if (!open || (activeChat?._id !== message.sender._id)) {
+        if (activeChat?._id !== message.sender._id) {
           setHasUnread(true);
         }
       });
@@ -315,7 +318,30 @@ const MessageDrawer = () => {
         socket.off('receive_message');
       }
     };
-  }, [user, open, socket, activeChat]);
+  }, [user, socket, activeChat]);
+
+  // Add a separate useEffect for handling read status when opening a chat
+  useEffect(() => {
+    if (activeChat) {
+      // Update recent chats to mark this chat as read
+      setRecentChats(prev => 
+        prev.map(chat => 
+          chat._id === activeChat._id 
+            ? { ...chat, hasUnread: false }
+            : chat
+        )
+      );
+
+      // Emit socket event to mark messages as read
+      socket?.emit('mark_read', { senderId: activeChat._id });
+
+      // Check if there are any other unread chats
+      const hasOtherUnread = recentChats.some(
+        chat => chat._id !== activeChat._id && chat.hasUnread
+      );
+      setHasUnread(hasOtherUnread);
+    }
+  }, [activeChat, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -634,6 +660,7 @@ const MessageDrawer = () => {
                         color: message.sender._id === user._id ? '#ffffff' : 'var(--text-color)',
                         fontSize: '0.95rem',
                         lineHeight: 1.4,
+                        whiteSpace: 'pre-wrap'
                       }}>
                         {message.content}
                       </Typography>
@@ -650,18 +677,24 @@ const MessageDrawer = () => {
                     </Paper>
                   </Box>
                 ))}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} style={{ padding: '1px' }} />
               </Box>
 
               {/* Message Input */}
               <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'var(--border-color)' }}>
                 <TextField
                   fullWidth
+                  multiline
                   variant="outlined"
                   placeholder="Type a message..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
                   InputProps={{
                     endAdornment: (
                       <IconButton 
@@ -675,7 +708,7 @@ const MessageDrawer = () => {
                     sx: {
                       bgcolor: 'var(--primary-color)',
                       '& fieldset': { border: 'none' },
-                      '& input': { 
+                      '& textarea': { 
                         color: 'var(--text-color)',
                         '&::placeholder': {
                           color: 'var(--muted-text-color)',
