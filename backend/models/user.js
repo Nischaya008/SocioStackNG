@@ -52,5 +52,23 @@ const userSchema=new mongoose.Schema({
     }]
 },{timestamps:true});
 
+userSchema.pre('remove', async function(next) {
+    try {
+        // Delete all messages where this user is sender or receiver
+        await Message.updateMany(
+            {
+                $or: [
+                    { sender: this._id },
+                    { receiver: this._id }
+                ]
+            },
+            { deleted: true }
+        );
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
 const User=mongoose.model("User",userSchema);
 export default User;
