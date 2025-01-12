@@ -36,6 +36,11 @@ import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 
+// Add these constants after the imports
+const SENT_SOUND_URL = 'https://cdn.pixabay.com/download/audio/2024/11/27/audio_c91ef5ee90.mp3?filename=notification-2-269292.mp3';
+const RECEIVED_SOUND_URL = 'https://cdn.pixabay.com/download/audio/2024/08/02/audio_3a4d7c617d.mp3?filename=notification-beep-229154.mp3';
+
+
 const MessageDrawer = () => {
   const { user } = useAuth();
   const { darkMode } = useTheme();
@@ -51,6 +56,8 @@ const MessageDrawer = () => {
   const messagesEndRef = useRef(null);
   const [hasUnread, setHasUnread] = useState(false);
   const [isManuallyScrolled, setIsManuallyScrolled] = useState(false);
+  const sentAudioRef = useRef(new Audio(SENT_SOUND_URL));
+  const receivedAudioRef = useRef(new Audio(RECEIVED_SOUND_URL));
 
   // Connect to socket when component mounts
   useEffect(() => {
@@ -100,6 +107,11 @@ const MessageDrawer = () => {
           
           // Check if message already exists
           if (!currentMessages.some(m => m._id === message._id)) {
+            // Play received sound if the chat is active and message is from other user
+            if (activeChat?._id === message.sender._id && message.sender._id !== user._id) {
+              receivedAudioRef.current?.play().catch(() => {});
+            }
+
             return {
               ...prev,
               [chatId]: [...currentMessages, message]
@@ -147,7 +159,7 @@ const MessageDrawer = () => {
         }
       };
     }
-  }, [user]);
+  }, [user, activeChat]);
 
   // Fetch initial data
   useEffect(() => {
@@ -229,12 +241,15 @@ const MessageDrawer = () => {
   // Auto scroll to bottom
   useEffect(() => {
     if (activeChat && messages[activeChat._id] && !isManuallyScrolled) {
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'end'  // This ensures scrolling to the very bottom
-      });
+      // Use setTimeout to ensure the DOM is updated before scrolling
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end'  // This ensures scrolling to the very bottom
+        });
+      }, 0);
     }
-  }, [messages, activeChat]);
+  }, [messages[activeChat?._id], activeChat, isManuallyScrolled]);
 
   // Add this effect to reset manual scroll when changing chats
   useEffect(() => {
@@ -255,6 +270,11 @@ const MessageDrawer = () => {
         content: messageContent,
         receiverId: activeChat._id
       });
+
+      // Play sent sound
+      if (activeChat && sentAudioRef.current) {
+        sentAudioRef.current.play().catch(() => {});
+      }
 
       // Optimistically update UI
       const newMessageObj = response.data;
@@ -372,6 +392,25 @@ const MessageDrawer = () => {
       toast.error('Failed to delete message');
     }
   };
+
+  useEffect(() => {
+    // Initialize audio elements
+    sentAudioRef.current = new Audio(SENT_SOUND_URL);
+    receivedAudioRef.current = new Audio(RECEIVED_SOUND_URL);
+    
+    // Set volume
+    sentAudioRef.current.volume = 0.5;
+    receivedAudioRef.current.volume = 0.5;
+    
+    // Preload audio
+    sentAudioRef.current.load();
+    receivedAudioRef.current.load();
+    
+    return () => {
+      sentAudioRef.current = null;
+      receivedAudioRef.current = null;
+    };
+  }, []);
 
   return (
     <>
