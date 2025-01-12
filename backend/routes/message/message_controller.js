@@ -176,3 +176,18 @@ export const sendMessage = async (req, res) => {
         res.status(500).json({ message: 'Error sending message' });
     }
 };
+
+export const checkUnreadMessages = async (req, res) => {
+    try {
+        const unreadCount = await Message.countDocuments({
+            receiver: req.user._id,
+            read: false,
+            deleted: false
+        });
+        
+        res.json({ hasUnread: unreadCount > 0 });
+    } catch (error) {
+        console.error('Error checking unread messages:', error);
+        res.status(500).json({ message: 'Error checking unread messages' });
+    }
+};
