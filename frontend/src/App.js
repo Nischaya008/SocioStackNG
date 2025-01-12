@@ -10,6 +10,7 @@ import EditCard from './components/main/edit_card.jsx';
 import ScrollToTop from './components/main/scrolltop.jsx';
 import FloatingCreatePost from './components/main/create_card.jsx';
 import { ThemeProvider } from './contexts/theme_context.jsx';
+import MessageDrawer from './components/message/drawer.jsx';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           </Routes>
           <ScrollToTop />
           <FloatingCreatePost />
+          <MessageDrawer />
         </BrowserRouter>
       </ThemeProvider>
     </AuthProvider>
