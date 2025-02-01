@@ -95,7 +95,7 @@ This project provided opportunities to:
 ### Steps:
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/sociostackng.git
+   git clone https://github.com/Nischaya008/SocioStackNG
    ```
 2. Navigate to the project directory:
    ```bash
@@ -103,7 +103,10 @@ This project provided opportunities to:
    ```
 3. Install dependencies:
    ```bash
+   cd backend #Install Backend
    npm install
+   cd frontend #Install Frontend
+   npm install --force
    ```
 4. Configure environment variables:
    - Create a `.env` file in the root directory and add the following:
@@ -116,6 +119,9 @@ This project provided opportunities to:
      ```
 5. Start the development server:
    ```bash
+   cd backend 
+   npm run dev
+   cd frontend
    npm start
    ```
 6. Open the app in your browser at `http://localhost:3000`
@@ -138,4 +144,4 @@ I’d love to hear your thoughts on SocioStackNG. Whether it’s feedback, colla
 - **LinkedIn:** [Nischaya Garg](https://www.linkedin.com/in/nischaya008/)
 - **Twitter:** [Nischaya008](https://x.com/Nischaya008)
 
-**#WebDevelopment #MERN #React #NodeJS #MongoDB #OpenSource #SoftwareEngineering #SocioStackNG**
+Stay Innovated, Keep Coding, Think BIG! 🚀
